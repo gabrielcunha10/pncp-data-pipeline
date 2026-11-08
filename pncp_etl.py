@@ -12,6 +12,20 @@ def remover_acentos(texto: str) -> str:
         return ""
     return "".join(c for c in unicodedata.normalize("NFKD", str(texto)) if not unicodedata.combining(c)).lower()
 
+def limpar_descricao_objeto(texto: Any) -> str:
+    """
+    Higieniza a descrição do Objeto:
+    - Remove tags de sistemas na frente do texto (ex: '[Portal de Compras Públicas] - ', '[LICITANET] - ').
+    - Remove quebras de linha (\r, \n), tabulações e espaços invisíveis (\xa0).
+    - Padroniza espaços múltiplos em um único espaço.
+    """
+    if not texto:
+        return ""
+    limpo = re.sub(r"^\s*\[[^\]]+\]\s*[-–—]?\s*", "", str(texto))
+    limpo = re.sub(r"[\r\n\t\xa0]+", " ", limpo)
+    limpo = re.sub(r"\s+", " ", limpo).strip()
+    return limpo
+
 def format_cnpj(cnpj: Any) -> str:
     if not cnpj:
         return ""
@@ -39,64 +53,76 @@ def format_currency(val: Any) -> str:
         return str(val)
 
 def classificar_setor(objeto: str, unidade: str = "", orgao: str = "") -> str:
-    """Classifica nas áreas do projeto: Saúde, Educação, Obras, Transporte, TI e Outros."""
+    """
+    Classifica nas áreas do projeto: Saúde, Educação, Obras, Transporte, Informática (TI) e Outros.
+    Evita falsos positivos como 'Sistema de Registro de Preços' ou 'Rede Municipal'.
+    """
     texto = remover_acentos(f"{objeto} {unidade} {orgao}")
-    if re.search(r"\b(saude|medic|remedio|hospit|farmac|clinic|enferm|upa|fms|sus|odontol|vacin|leito|cirurg|laborat|exame|biomedic)", texto):
+    if re.search(r"\b(saude|medic|remedio|hospit|farmac|clinic|enferm|upa|fms|sus|samu|ubs|caps|odontol|vacin|leito|cirurg|laborat|exame|biomedic|fisioterap|psicolog|nutricion)", texto):
         return "Saúde"
-    if re.search(r"\b(educa|escol|ensino|creche|merenda|pedagog|aluno|profess|didatico|fnde|livro|fardamento)", texto):
+    if re.search(r"\b(educa|escol|ensino|creche|merenda|pedagog|aluno|profess|didatico|fnde|livro|fardamento|universidad|estudant)", texto):
         return "Educação"
-    if re.search(r"\b(obra|paviment|asfalt|reforma|constru|engenharia|drenagem|calcamento|edifica|ponte|praca|iluminacao|luz publica)", texto):
+    if re.search(r"\b(obra|paviment|asfalt|reforma|constru|engenharia|drenagem|calcamento|edifica|ponte|praca|iluminacao|luz publica|urbanizacao|saneamento|terraplanagem)", texto):
         return "Obras"
     if re.search(r"\b(transporte|veiculo|combustivel|frota|onibus|gasolina|diesel|locacao de veiculo|pneu|automovel|ambulancia)", texto):
         return "Transporte"
-    if re.search(r"\b(informatica|software|computador|tecnologia|ti\b|internet|rede|licenca de software|datacenter|hardware|sistema|nuvem)", texto):
+    if re.search(r"\b(informatica|software|computador|notebook|tecnologia da informacao|ti\b|internet|fibra optica|licenca de uso|licenciamento|datacenter|hardware|sistema informatizado|sistema de gestao|nuvem|cftv|biometrico|ged)\b", texto):
         return "Informática (TI)"
     return "Outros"
 
 def classificar_motivo_e_palavras_chave(objeto: str) -> Tuple[str, str]:
     """
-    Analisa o texto da proposta (Objeto), extrai as palavras-chave
-    e classifica o motivo/natureza da proposta:
-    - Aquisição de Bens e Materiais
-    - Obras e Engenharia
-    - Prestação de Serviços Contínuos / Especializados
-    - Locação de Bens e Veículos
-    - Credenciamento de Serviços / Profissionais
-    - Tecnologia da Informação e Sistemas
-    - Transporte e Logística
-    - Eventos, Cultura e Festividades
-    - Outros / Diversos
+    Analisa a descrição limpa da proposta (Objeto), extrai as palavras-chave
+    e classifica o motivo/natureza da proposta sem falsos positivos.
     """
     t = remover_acentos(objeto)
 
     regras = [
-        ("Obras e Engenharia", r"\b(obra|obras|pavimentacao|asfalto|asfaltica|reforma|construcao|engenharia|drenagem|calcamento|edificacao|ponte|praca)\b"),
-        ("Locação de Bens e Veículos", r"\b(locacao|aluguel|locar)\b"),
-        ("Credenciamento de Serviços / Profissionais", r"\b(credenciamento|chamamento publico)\b"),
-        ("Eventos, Cultura e Festividades", r"\b(evento|eventos|show|shows|festividade|festividades|palco|som|decoracao natalina|iluminacao natalina|carnaval|sao joao)\b"),
-        ("Tecnologia da Informação e Sistemas", r"\b(software|sistema|sistemas|licenca|licenciamento|informatica|computador|computadores|internet|link de dados|datacenter)\b"),
-        ("Transporte e Logística", r"\b(transporte escolar|transporte de estudantes|transporte de alunos|transporte de pacientes|frete|frota|onibus)\b"),
-        ("Prestação de Serviços Contínuos / Especializados", r"\b(prestacao de servico|prestacao de servicos|servicos de|servico de|manutencao|vigilancia|limpeza|assessoria|consultoria|coleta)\b"),
-        ("Aquisição de Bens e Materiais", r"\b(aquisicao|fornecimento|compra de|materiais|material|suprimentos|equipamentos|medicamentos|merenda|combustivel|combustiveis)\b")
+        (
+            "Obras e Engenharia",
+            r"\b(obra|obras|pavimentacao|asfalto|asfaltica|reforma|construcao|ampliacao|engenharia|drenagem|calcamento|edificacao|ponte|praca|urbanizacao|terraplanagem|saneamento|recapeamento|reestruturacao)\b"
+        ),
+        (
+            "Credenciamento de Serviços / Profissionais",
+            r"\b(credenciamento|credenciar|chamamento publico)\b"
+        ),
+        (
+            "Locação de Bens, Veículos e Estruturas",
+            r"\b(locacao|aluguel|locar|horas maquinas)\b"
+        ),
+        (
+            "Eventos, Cultura e Festividades",
+            r"\b(evento|eventos|show|shows|festividade|festividades|palco|sonorizacao|decoracao natalina|iluminacao natalina|carnaval|sao joao|festa|artistico|artisticos)\b"
+        ),
+        (
+            "Transporte e Logística",
+            r"\b(transporte escolar|transporte de estudantes|transporte de alunos|transporte de pacientes|frete|transporte rodoviario)\b"
+        ),
+        (
+            "Tecnologia da Informação e Sistemas",
+            r"\b(software|sistema informatizado|sistema de gestao|solucao integrada|licenca|licencas|licenciamento|informatica|computador|computadores|notebook|notebooks|internet|fibra optica|datacenter|cftv|biometrico|ged)\b"
+        ),
+        (
+            "Concessão, Permissão de Uso e Alienação",
+            r"\b(concessao|permissao de uso|cessao de uso|alienacao|leilao)\b"
+        ),
+        (
+            "Aquisição de Bens, Materiais e Insumos",
+            r"\b(aquisicao|fornecimento|compra de|materiais|material|suprimentos|insumos|instrumentais|equipamentos|medicamentos|merenda|combustivel|combustiveis|gasolina|diesel|glp|botijao|agua mineral|generos alimenticios|fardamento|uniforme|mobiliario|eletrodomesticos|utensilios|pecas|pneus|racoes)\b"
+        ),
+        (
+            "Prestação de Serviços Especializados",
+            r"\b(prestacao de servico|prestacao de servicos|prestacao dos servicos|servicos de|servico de|servico continuo|servicos graficos|manutencao|vigilancia|vigia|limpeza|assessoria|consultoria|coleta|residuos|residuo|exames|servicos medicos|fisioterapeuticos|seguro|publicidade|comunicacao|impressao|dedetizacao|capacitacao|treinamento|concurso|folha de pagamento|instituicao financeira|regularizacao fundiaria)\b"
+        )
     ]
-
-    motivo = "Outros / Diversos"
-    kw_encontradas = []
 
     for cat, pattern in regras:
         matches = re.findall(pattern, t)
         if matches:
-            motivo = cat
-            kw_encontradas = sorted(list(set(matches)))
-            break
+            kw_unicas = sorted(list(set(matches)))
+            return cat, ", ".join(kw_unicas)
 
-    if not kw_encontradas:
-        generic_matches = re.findall(r"\b(gestao|capacitacao|treinamento|seguranca|apoio|uniforme|alimentacao)\b", t)
-        if generic_matches:
-            kw_encontradas = sorted(list(set(generic_matches)))
-
-    kw_str = ", ".join(kw_encontradas) if kw_encontradas else "não identificada"
-    return motivo, kw_str
+    return "Outros / Diversos", "não identificada"
 
 def classificar_tipo_compra(modalidade_nome: str, modo_disputa_nome: str = "") -> str:
     """Classifica em Compra Direta (Sem Disputa), Disputa Aberta ou Credenciamento."""
@@ -163,7 +189,7 @@ def executar_etl(
     """
     Fase de Transformação e Carga (Transform & Load):
     Lê o JSON com os dados brutos da pasta data/, aplica regras de negócio,
-    limpeza, classificação temática e por motivo, gerando o CSV consolidado em data/.
+    limpeza textual, classificação temática e por motivo, gerando o CSV consolidado em data/.
     """
     os.makedirs(os.path.dirname(os.path.abspath(output_csv)), exist_ok=True)
 
@@ -205,11 +231,11 @@ def executar_etl(
 
         modalidade = item.get("modalidadeNome", "")
         modo_disputa = item.get("modoDisputaNome", "")
-        objeto = item.get("objetoCompra", "")
+        objeto_limpo = limpar_descricao_objeto(item.get("objetoCompra", ""))
         val_estimado = item.get("valorTotalEstimado")
 
         # Classificação por motivo e extração de palavras-chave da proposta
-        motivo_proposta, palavras_chave = classificar_motivo_e_palavras_chave(objeto)
+        motivo_proposta, palavras_chave = classificar_motivo_e_palavras_chave(objeto_limpo)
 
         ano = item.get("anoCompra")
         seq = item.get("sequencialCompra")
@@ -253,10 +279,10 @@ def executar_etl(
             "Localidade": localidade,
             "Município": municipio,
             "É Capital": is_capital(municipio, uf_sigla),
-            "Setor / Área": classificar_setor(objeto, unidade_nome, razao_social),
+            "Setor / Área": classificar_setor(objeto_limpo, unidade_nome, razao_social),
             "Motivo da Proposta": motivo_proposta,
             "Palavras-Chave do Objeto": palavras_chave,
-            "Objeto": objeto,
+            "Objeto": objeto_limpo,
             "Valor Total Estimado": format_currency(val_estimado),
             "Valor Estimado Numérico": val_estimado if val_estimado is not None else "",
             "Status do Valor": status_valor_transparencia(val_estimado),
