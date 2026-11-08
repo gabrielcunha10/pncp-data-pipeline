@@ -49,24 +49,28 @@ def baixar_dados_brutos(
             )
 
             data = None
-            for tentativa in range(1, 6):
-                time.sleep(0.5)
+            max_tentativas = 8
+            for tentativa in range(1, max_tentativas + 1):
+                time.sleep(1.0)
                 try:
                     resp = session.get(url, timeout=30)
                     if resp.status_code == 429:
-                        espera = 2.0 * tentativa
-                        print(f"   [Rate Limit 429] Aguardando {espera:.1f}s...")
+                        espera = min(3.0 * (2 ** (tentativa - 1)), 30.0)
+                        print(f"   [Rate Limit 429] Aguardando {espera:.1f}s antes de tentar novamente ({tentativa}/{max_tentativas})...")
                         time.sleep(espera)
                         continue
                     resp.raise_for_status()
                     data = resp.json()
                     break
                 except Exception as e:
-                    if tentativa == 5:
+                    espera = min(2.0 * tentativa, 20.0)
+                    if tentativa == max_tentativas:
                         print(f"   [Erro] Falha ao consultar página {pagina} de {uf}: {e}")
-                    time.sleep(2.0)
+                    else:
+                        time.sleep(espera)
 
             if not data:
+                print(f"   [Aviso] Interrompendo coleta de {uf} na página {pagina}.")
                 break
 
             total_paginas = data.get("totalPaginas", 1)
@@ -77,7 +81,7 @@ def baixar_dados_brutos(
                 todos_itens.append(item)
                 total_uf += 1
 
-            print(f"   [{uf}] Página {pagina}/{total_paginas} baixada ({total_uf} itens)")
+            print(f"   [{uf}] Página {pagina}/{total_paginas} baixada ({total_uf} itens acumulados)")
             pagina += 1
 
     with open(output_json, "w", encoding="utf-8") as f:
