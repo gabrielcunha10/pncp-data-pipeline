@@ -61,8 +61,9 @@ O ciclo de vida do projeto está dividido em cinco etapas fundamentais:
 
 ```text
 pncp-data-pipeline/
-├── data/                         # Ignorada pelo Git (armazena arquivos gerados)
+├── data/                         # Armazena os dados do projeto
 │   ├── .gitkeep
+│   ├── dados_ibge_ufs.csv        # Tabela dimensão oficial do IBGE (PIB e População)
 │   ├── dados_brutos_pncp.json    # JSON bruto baixado da API (Etapa 1)
 │   └── editais_pncp_PB_PE.csv    # Planilha tratada e consolidada (Etapa 2)
 ├── download_pncp.py              # Script da Etapa 1: Extração da API
