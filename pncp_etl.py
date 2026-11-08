@@ -54,22 +54,65 @@ def format_currency(val: Any) -> str:
 
 def classificar_setor(objeto: str, unidade: str = "", orgao: str = "") -> str:
     """
-    Classifica nas áreas do projeto: Saúde, Educação, Obras, Transporte, Informática (TI)
-    e Administração Geral e Serviços Públicos.
+    Classifica nas áreas temáticas divididas por tipo de demanda e atuação pública.
     Evita falsos positivos como 'Sistema de Registro de Preços' ou 'Rede Municipal'.
     """
     texto = remover_acentos(f"{objeto} {unidade} {orgao}")
-    if re.search(r"\b(saude|medic|remedio|hospit|farmac|clinic|enferm|upa|fms|sus|samu|ubs|caps|odontol|vacin|leito|cirurg|laborat|exame|biomedic|fisioterap|psicolog|nutricion)", texto):
+
+    # 1. Saúde
+    if re.search(r"\b(saude|medic|remedio|hospit|farmac|clinic|enferm|upa|fms|sus|samu|ubs|caps|odontol|vacin|leito|cirurg|laborat|exame|biomedic|fisioterap|psicolog|nutricion|seringa|dieta enteral|dietas enterais|formula lactea|formulas lacteas|hemodialise|ortoped|oftalmol|ambulanc)", texto):
         return "Saúde"
-    if re.search(r"\b(educa|escol|ensino|creche|merenda|pedagog|aluno|profess|didatico|fnde|livro|fardamento|universidad|estudant)", texto):
+
+    # 2. Educação
+    if re.search(r"\b(educa|escol|colegio|ensino|creche|merenda|pedagog|aluno|profess|didatico|fnde|livro|fardamento|universidad|estudant)", texto):
         return "Educação"
-    if re.search(r"\b(obra|paviment|asfalt|reforma|constru|engenharia|drenagem|calcamento|edifica|ponte|praca|iluminacao|luz publica|urbanizacao|saneamento|terraplanagem)", texto):
-        return "Obras"
-    if re.search(r"\b(transporte|veiculo|combustivel|frota|onibus|gasolina|diesel|locacao de veiculo|pneu|automovel|ambulancia)", texto):
-        return "Transporte"
-    if re.search(r"\b(informatica|software|computador|notebook|tecnologia da informacao|ti\b|internet|fibra optica|licenca de uso|licenciamento|datacenter|hardware|sistema informatizado|sistema de gestao|nuvem|cftv|biometrico|ged)\b", texto):
+
+    # 3. Obras e Infraestrutura
+    if re.search(r"\b(obra|paviment|asfalt|reforma|constru|engenharia|drenagem|calcamento|edifica|ponte|praca|iluminacao|luminaria|luz publica|urbanizacao|saneamento|terraplanagem|postes|materiais eletricos|materiais hidraulicos|pre-moldados|cimento|brita|granito)", texto):
+        return "Obras e Infraestrutura"
+
+    # 4. Transporte, Frota e Combustíveis
+    if re.search(r"\b(transporte|veiculo|combustivel|combustiveis|frota|onibus|gasolina|diesel|locacao de veiculo|pneu|automovel|caminhao|caminhoes|carroceria|passagens aereas|agenciamento de passagens|lubrificante|servicos mecanicos)", texto):
+        return "Transporte, Frota e Combustíveis"
+
+    # 5. Informática (TI)
+    if re.search(r"\b(informatica|software|computador|computadores|notebook|notebooks|tecnologia da informacao|ti\b|internet|fibra optica|licenca de uso|licenciamento|datacenter|hardware|sistema informatizado|sistema de gestao|nuvem|cftv|biometrico|ged|impressora|impressoras|impressao corporativa|rede movel|voz e dados|telecomunicac)\b", texto):
         return "Informática (TI)"
-    return "Administração Geral e Serviços Públicos"
+
+    # 6. Segurança Pública e Vigilância
+    if re.search(r"\b(seguranca|vigilancia|vigia|policia|militar|bombeiro|bombeiros|guarda-vidas|guarda municipal|defesa social|armada|desarmada|extintor|extintores|incendio|cjm|penitenciar|prisional|delegacia|drone|aeronave|aeronaves)", texto):
+        return "Segurança Pública e Vigilância"
+
+    # 7. Cultura, Esporte e Eventos
+    if re.search(r"\b(cultura|cultural|culturais|artista|artistas|banda|bandas|musica|musical|musicais|musicos|show|shows|evento|eventos|festa|festividades|carnaval|sao joao|natalin|esporte|esportivo|esportivos|lazer|trofeu|trofeus|medalha|medalhas|playground|brinquedo|brinquedos|academia ao ar livre|academias ao ar livre|turismo|hospedagem|sonorizacao|palco)", texto):
+        return "Cultura, Esporte e Eventos"
+
+    # 8. Assistência Social e Cidadania
+    if re.search(r"\b(assistencia social|desenvolvimento social|cesta basica|cestas basicas|vulnerabilidade|cras|creas|kit natalidade|funerari|urnas|familias carentes|sem fome|doacao|oculos de grau)", texto):
+        return "Assistência Social e Cidadania"
+
+    # 9. Meio Ambiente, Agro e Serviços Urbanos
+    if re.search(r"\b(meio ambiente|ambiental|residuo|residuos|aterro|coleta de lixo|limpeza urbana|poda|paisagismo|jardinagem|muda|mudas|arborea|bioma|caatinga|icmbio|desassoreamento|recursos hidricos|poco|pocos|agropecuar|agricultura|rural|embrapa|racao|racoes|animal|animais|caes e gatos|veterinar|matadouro|abatedouro|escavadeira|retroescavadeira|maquinas pesadas|trator)", texto):
+        return "Meio Ambiente, Agro e Serviços Urbanos"
+
+    # 10. Alimentação, Copa e Suprimentos
+    if re.search(r"\b(generos alimenticios|alimentacao|alimento|alimentos|refeicao|refeicoes|marmitex|quentinha|quentinhas|almoco|almocos|buffet|coffee break|coquetel|lanches|salgados|padaria|padarias|panificados|paes|bolos|cafe|agua mineral|agua adicionada|agua para consumo|garrafoes|glp|gas liquefeito|gas de cozinha|botijao|utensilios de cozinha|utensilos de cozinha|copa|cantina|aves e pescados|carnes|hortifruti)", texto):
+        return "Alimentação, Copa e Suprimentos"
+
+    # 11. Mobiliário, Climatização e Estrutura Predial
+    if re.search(r"\b(mobiliario|mobiliarios|cadeiras|mesas|armarios|ar-condicionado|ar condicionado|climatizacao|refrigeracao|eletrodomesticos|material permanente|materiais permanentes|persianas|lampadas|vidros|marcenaria|bens imoveis|instalacoes)", texto):
+        return "Mobiliário, Climatização e Estrutura Predial"
+
+    # 12. Limpeza, Conservação e Expediente
+    if re.search(r"\b(limpeza|higiene|conservacao|papel a4|papel oficio|papel sulfite|materiais de expediente|material de expediente|almoxarifado|copos|descartaveis|lixeiras|tecidos|roupa)", texto):
+        return "Limpeza, Conservação e Expediente"
+
+    # 13. Comunicação, Gráfica e Publicidade
+    if re.search(r"\b(comunicacao|publicidade|marketing|servicos graficos|materiais graficos|sites e blogs|audio visual|audiovisual|divulgacao|publicacao de avisos|promocionais)", texto):
+        return "Comunicação, Gráfica e Publicidade"
+
+    # 14. Gestão Financeira, Patrimonial e Administrativa
+    return "Gestão Financeira, Patrimonial e Administrativa"
 
 def classificar_motivo_e_palavras_chave(objeto: str) -> Tuple[str, str]:
     """
