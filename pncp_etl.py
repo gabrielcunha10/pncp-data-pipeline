@@ -4,7 +4,7 @@ import csv
 import re
 import unicodedata
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any, Optional, Tuple
 from dateutil import parser as date_parser
 
 def remover_acentos(texto: str) -> str:
@@ -52,6 +52,51 @@ def classificar_setor(objeto: str, unidade: str = "", orgao: str = "") -> str:
     if re.search(r"\b(informatica|software|computador|tecnologia|ti\b|internet|rede|licenca de software|datacenter|hardware|sistema|nuvem)", texto):
         return "Informática (TI)"
     return "Outros"
+
+def classificar_motivo_e_palavras_chave(objeto: str) -> Tuple[str, str]:
+    """
+    Analisa o texto da proposta (Objeto), extrai as palavras-chave
+    e classifica o motivo/natureza da proposta:
+    - Aquisição de Bens e Materiais
+    - Obras e Engenharia
+    - Prestação de Serviços Contínuos / Especializados
+    - Locação de Bens e Veículos
+    - Credenciamento de Serviços / Profissionais
+    - Tecnologia da Informação e Sistemas
+    - Transporte e Logística
+    - Eventos, Cultura e Festividades
+    - Outros / Diversos
+    """
+    t = remover_acentos(objeto)
+
+    regras = [
+        ("Obras e Engenharia", r"\b(obra|obras|pavimentacao|asfalto|asfaltica|reforma|construcao|engenharia|drenagem|calcamento|edificacao|ponte|praca)\b"),
+        ("Locação de Bens e Veículos", r"\b(locacao|aluguel|locar)\b"),
+        ("Credenciamento de Serviços / Profissionais", r"\b(credenciamento|chamamento publico)\b"),
+        ("Eventos, Cultura e Festividades", r"\b(evento|eventos|show|shows|festividade|festividades|palco|som|decoracao natalina|iluminacao natalina|carnaval|sao joao)\b"),
+        ("Tecnologia da Informação e Sistemas", r"\b(software|sistema|sistemas|licenca|licenciamento|informatica|computador|computadores|internet|link de dados|datacenter)\b"),
+        ("Transporte e Logística", r"\b(transporte escolar|transporte de estudantes|transporte de alunos|transporte de pacientes|frete|frota|onibus)\b"),
+        ("Prestação de Serviços Contínuos / Especializados", r"\b(prestacao de servico|prestacao de servicos|servicos de|servico de|manutencao|vigilancia|limpeza|assessoria|consultoria|coleta)\b"),
+        ("Aquisição de Bens e Materiais", r"\b(aquisicao|fornecimento|compra de|materiais|material|suprimentos|equipamentos|medicamentos|merenda|combustivel|combustiveis)\b")
+    ]
+
+    motivo = "Outros / Diversos"
+    kw_encontradas = []
+
+    for cat, pattern in regras:
+        matches = re.findall(pattern, t)
+        if matches:
+            motivo = cat
+            kw_encontradas = sorted(list(set(matches)))
+            break
+
+    if not kw_encontradas:
+        generic_matches = re.findall(r"\b(gestao|capacitacao|treinamento|seguranca|apoio|uniforme|alimentacao)\b", t)
+        if generic_matches:
+            kw_encontradas = sorted(list(set(generic_matches)))
+
+    kw_str = ", ".join(kw_encontradas) if kw_encontradas else "não identificada"
+    return motivo, kw_str
 
 def classificar_tipo_compra(modalidade_nome: str, modo_disputa_nome: str = "") -> str:
     """Classifica em Compra Direta (Sem Disputa), Disputa Aberta ou Credenciamento."""
@@ -118,7 +163,7 @@ def executar_etl(
     """
     Fase de Transformação e Carga (Transform & Load):
     Lê o JSON com os dados brutos da pasta data/, aplica regras de negócio,
-    limpeza, classificação e gera o CSV consolidado final em data/.
+    limpeza, classificação temática e por motivo, gerando o CSV consolidado em data/.
     """
     os.makedirs(os.path.dirname(os.path.abspath(output_csv)), exist_ok=True)
 
@@ -163,6 +208,9 @@ def executar_etl(
         objeto = item.get("objetoCompra", "")
         val_estimado = item.get("valorTotalEstimado")
 
+        # Classificação por motivo e extração de palavras-chave da proposta
+        motivo_proposta, palavras_chave = classificar_motivo_e_palavras_chave(objeto)
+
         ano = item.get("anoCompra")
         seq = item.get("sequencialCompra")
         num_controle = item.get("numeroControlePNCP", "")
@@ -206,6 +254,8 @@ def executar_etl(
             "Município": municipio,
             "É Capital": is_capital(municipio, uf_sigla),
             "Setor / Área": classificar_setor(objeto, unidade_nome, razao_social),
+            "Motivo da Proposta": motivo_proposta,
+            "Palavras-Chave do Objeto": palavras_chave,
             "Objeto": objeto,
             "Valor Total Estimado": format_currency(val_estimado),
             "Valor Estimado Numérico": val_estimado if val_estimado is not None else "",
