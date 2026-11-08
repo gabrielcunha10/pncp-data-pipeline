@@ -54,7 +54,8 @@ def format_currency(val: Any) -> str:
 
 def classificar_setor(objeto: str, unidade: str = "", orgao: str = "") -> str:
     """
-    Classifica nas áreas do projeto: Saúde, Educação, Obras, Transporte, Informática (TI) e Outros.
+    Classifica nas áreas do projeto: Saúde, Educação, Obras, Transporte, Informática (TI)
+    e Administração Geral e Serviços Públicos.
     Evita falsos positivos como 'Sistema de Registro de Preços' ou 'Rede Municipal'.
     """
     texto = remover_acentos(f"{objeto} {unidade} {orgao}")
@@ -68,7 +69,7 @@ def classificar_setor(objeto: str, unidade: str = "", orgao: str = "") -> str:
         return "Transporte"
     if re.search(r"\b(informatica|software|computador|notebook|tecnologia da informacao|ti\b|internet|fibra optica|licenca de uso|licenciamento|datacenter|hardware|sistema informatizado|sistema de gestao|nuvem|cftv|biometrico|ged)\b", texto):
         return "Informática (TI)"
-    return "Outros"
+    return "Administração Geral e Serviços Públicos"
 
 def classificar_motivo_e_palavras_chave(objeto: str) -> Tuple[str, str]:
     """
