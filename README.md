@@ -63,13 +63,15 @@ O ciclo de vida do projeto está dividido em cinco etapas fundamentais:
 pncp-data-pipeline/
 ├── .github/                      # Automacoes e CI/CD
 │   └── workflows/
-│       └── pipeline.yml          # Workflow do GitHub Actions (Execucao automatizada)
+│       ├── pipeline.yml          # Workflow diario do PNCP (Extracao e ETL)
+│       └── ibge_anual.yml        # Workflow anual do IBGE (Novembro com retry diario)
 ├── data/                         # Armazena os dados do projeto
 │   ├── .gitkeep
-│   ├── dados_ibge_ufs.csv        # Tabela dimensao oficial do IBGE (PIB e Populacao)
+│   ├── dados_ibge_ufs.csv        # Serie historica oficial do IBGE (PIB e Populacao)
 │   ├── dados_brutos_pncp.json    # JSON bruto baixado da API (Etapa 1)
 │   └── editais_pncp_PB_PE.csv    # Planilha tratada e consolidada (Etapa 2)
-├── download_pncp.py              # Script da Etapa 1: Extracao da API
+├── atualizar_ibge.py             # Script que consulta a API SIDRA do IBGE (PIB e Populacao)
+├── download_pncp.py              # Script da Etapa 1: Extracao da API do PNCP
 ├── pncp_etl.py                   # Script da Etapa 2: Transformacao e regras DEILAS
 ├── requirements.txt              # Dependencias do projeto
 ├── .gitignore                    # Regras de exclusao do Git
@@ -104,11 +106,18 @@ python pncp_etl.py
 
 ## Execucao Automatizada via GitHub Actions
 
-O projeto conta com um workflow automatizado em `.github/workflows/pipeline.yml` que:
+O projeto conta com dois workflows automatizados em `.github/workflows/`:
+
+### 1. Pipeline PNCP (`.github/workflows/pipeline.yml`)
 * Executa a extracao (`download_pncp.py`) e o ETL (`pncp_etl.py`) em ambiente virtualizado Ubuntu.
 * Pode ser acionado manualmente pela aba **Actions** no GitHub (gatilho `workflow_dispatch`).
 * Roda de forma agendada diariamente as 06:00 BRT (09:00 UTC).
 * Salva e commita o arquivo final `data/editais_pncp_PB_PE.csv` diretamente no repositório GitHub (arquivo .csv avulso, sem necessidade de baixar arquivos compactados .zip).
+
+### 2. Atualizacao Anual do PIB IBGE (`.github/workflows/ibge_anual.yml`)
+* Executa o script `atualizar_ibge.py`, que consome a API oficial SIDRA do IBGE (Tabelas 5938, 6579 e 4709).
+* Roda anualmente a partir da segunda semana de novembro (`dias 8 a 22 de novembro`, as 09:00 BRT / 12:00 UTC), fazendo 1 tentativa (retry) por dia ate o IBGE publicar a nova edicao das Contas Regionais (ex: PIB de 2024 em novembro de 2026).
+* Assim que o novo ano e detectado na API do IBGE, atualiza e commita automaticamente o arquivo `data/dados_ibge_ufs.csv`. Nos dias seguintes da janela, identifica que o ano-alvo ja foi salvo e encerra imediatamente sem novas requisicoes.
 
 ---
 

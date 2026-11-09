@@ -1,9 +1,9 @@
 Ano_PIB;UF;Nome_Estado;Regiao;Capital;Populacao;PIB_Reais;PIB_Formatado;PIB_per_Capita_Reais;Crescimento_Real_Anual_Pct
 2023;PB;Paraíba;Nordeste;João Pessoa;3974687;96963174000;R$ 96,96 bilhões;24395.17;3.0
-2022;PB;Paraíba;Nordeste;João Pessoa;3974687;86094000000;R$ 86,09 bilhões;21660.57;5.6
-2021;PB;Paraíba;Nordeste;João Pessoa;4059905;77470000000;R$ 77,47 bilhões;19081.73;3.9
-2020;PB;Paraíba;Nordeste;João Pessoa;4039277;70292000000;R$ 70,29 bilhões;17402.12;-3.0
-2023;PE;Pernambuco;Nordeste;Recife;9058931;270475919000;R$ 270,48 bilhões;29857.27;2.4
-2022;PE;Pernambuco;Nordeste;Recife;9058931;245828000000;R$ 245,83 bilhões;27136.53;3.2
-2021;PE;Pernambuco;Nordeste;Recife;9674793;220814000000;R$ 220,81 bilhões;22823.64;3.8
-2020;PE;Pernambuco;Nordeste;Recife;9616621;193307000000;R$ 193,31 bilhões;20101.34;-3.2
+2022;PB;Paraíba;Nordeste;João Pessoa;3974687;86094173000;R$ 86,09 bilhões;21660.62;5.6
+2021;PB;Paraíba;Nordeste;João Pessoa;4059905;77470331000;R$ 77,47 bilhões;19081.81;3.9
+2020;PB;Paraíba;Nordeste;João Pessoa;4039277;70292034000;R$ 70,29 bilhões;17402.13;-3.0
+2023;PE;Pernambuco;Nordeste;Recife;9058931;270474919000;R$ 270,47 bilhões;29857.27;2.4
+2022;PE;Pernambuco;Nordeste;Recife;9058931;245828017000;R$ 245,83 bilhões;27136.54;3.2
+2021;PE;Pernambuco;Nordeste;Recife;9674793;220813522000;R$ 220,81 bilhões;22823.59;3.8
+2020;PE;Pernambuco;Nordeste;Recife;9616621;193307317000;R$ 193,31 bilhões;20101.38;-3.2

@@ -1,0 +1,52 @@
+name: Atualização Anual PIB IBGE (Novembro com Retry Diário)
+
+on:
+  # Permite disparar manualmente pela aba Actions do GitHub
+  workflow_dispatch:
+
+  # Executa anualmente a partir da 2ª semana de novembro (dias 8 a 22 de novembro)
+  # Faz 1 tentativa (retry) por dia às 09:00 BRT (12:00 UTC) até o IBGE liberar o novo PIB
+  schedule:
+    - cron: '0 12 8-22 11 *'
+
+permissions:
+  contents: write
+
+jobs:
+  atualizar-pib-ibge:
+    name: Consultar API SIDRA IBGE (PIB e População)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configurar Ambiente Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Instalar Dependências
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 1. Consultar API SIDRA do IBGE (atualizar_ibge.py)
+        run: |
+          python atualizar_ibge.py
+
+      - name: 2. Commitar e Enviar caso o novo PIB tenha sido lançado
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add data/dados_ibge_ufs.csv
+          if git diff --staged --quiet; then
+            echo "Nenhum dado novo do IBGE publicado hoje. Nova verificação amanhã (se ainda dentro da janela de novembro)."
+          else
+            ANO_NOVO=$(head -n 2 data/dados_ibge_ufs.csv | tail -n 1 | cut -d';' -f1)
+            git commit -m "chore(data): atualizar PIB IBGE com dados de $ANO_NOVO [skip ci]"
+            git push
+          fi
