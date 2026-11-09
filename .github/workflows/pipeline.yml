@@ -18,6 +18,10 @@ on:
       - 'requirements.txt'
       - '.github/workflows/**'
 
+# Permissão para o GitHub Actions commitar e enviar o CSV atualizado de volta ao repositório
+permissions:
+  contents: write
+
 jobs:
   executar-pipeline:
     name: Extração e Processamento PNCP
@@ -26,6 +30,8 @@ jobs:
     steps:
       - name: Checkout do Repositório
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Configurar Ambiente Python
         uses: actions/setup-python@v5
@@ -46,14 +52,17 @@ jobs:
         run: |
           python pncp_etl.py
 
-      - name: 3. Publicar Artefatos Gerados (CSV e JSON)
-        uses: actions/upload-artifact@v4
-        with:
-          name: editais-pncp-pb-pe
-          path: |
-            data/editais_pncp_PB_PE.csv
-            data/dados_brutos_pncp.json
-          retention-days: 30
+      - name: 3. Commitar e Enviar CSV Diretamente para o Repositório (Sem ZIP)
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add data/editais_pncp_PB_PE.csv
+          if git diff --staged --quiet; then
+            echo "Nenhuma alteração detectada na base de editais."
+          else
+            git commit -m "chore(data): atualizar editais_pncp_PB_PE.csv [skip ci]"
+            git push
+          fi
 
       - name: 4. Gerar Resumo da Execução no GitHub
         if: always()
@@ -66,7 +75,7 @@ jobs:
             echo "Status: Sucesso" >> $GITHUB_STEP_SUMMARY
             echo "Total de Editais Processados no CSV: **$TOTAL_EDITAIS**" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "Os arquivos gerados (**editais_pncp_PB_PE.csv** e **dados_brutos_pncp.json**) estão disponíveis para download na seção **Artifacts** desta execução." >> $GITHUB_STEP_SUMMARY
+            echo "O arquivo **data/editais_pncp_PB_PE.csv** foi atualizado diretamente no repositório (arquivo .csv avulso, sem ZIP)." >> $GITHUB_STEP_SUMMARY
           else
             echo "Status: Falha na geração dos arquivos." >> $GITHUB_STEP_SUMMARY
           fi

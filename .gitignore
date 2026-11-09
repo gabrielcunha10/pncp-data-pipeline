@@ -15,6 +15,7 @@ downloads/
 data/*
 !data/.gitkeep
 !data/dados_ibge_ufs.csv
+!data/editais_pncp_PB_PE.csv
 eggs/
 .eggs/
 lib/

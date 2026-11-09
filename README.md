@@ -108,14 +108,12 @@ O projeto conta com um workflow automatizado em `.github/workflows/pipeline.yml`
 * Executa a extracao (`download_pncp.py`) e o ETL (`pncp_etl.py`) em ambiente virtualizado Ubuntu.
 * Pode ser acionado manualmente pela aba **Actions** no GitHub (gatilho `workflow_dispatch`).
 * Roda de forma agendada diariamente as 06:00 BRT (09:00 UTC).
-* Gera e disponibiliza os arquivos finais (`editais_pncp_PB_PE.csv` e `dados_brutos_pncp.json`) para download na secao **Artifacts** de cada execucao.
+* Salva e commita o arquivo final `data/editais_pncp_PB_PE.csv` diretamente no repositório GitHub (arquivo .csv avulso, sem necessidade de baixar arquivos compactados .zip).
 
 ---
 
-## Por que a pasta data/ está no .gitignore?
+## Estrutura da pasta data/
 
-Arquivos de dados (JSON e CSV) não são versionados diretamente no repositório Git porque:
-* Evitam o inchaço do histórico de commits, mantendo o repositório leve para clonar e atualizar.
-* Mudam com frequência a cada nova consulta executada.
-* Podem ser reproduzidos integralmente a qualquer momento executando os scripts do pipeline.
-O arquivo `data/.gitkeep` garante que a pasta vazia exista no repositório de qualquer membro da equipe.
+* `data/dados_ibge_ufs.csv`: Tabela dimensao com dados demograficos e economicos do IBGE (versionada no repositorio).
+* `data/editais_pncp_PB_PE.csv`: Base tratada e consolidada de editais (atualizada automaticamente pelo pipeline e versionada diretamente como CSV).
+* `data/dados_brutos_pncp.json`: Arquivo bruto temporario de extracao da API (ignorado pelo Git para manter o repositorio limpo).
