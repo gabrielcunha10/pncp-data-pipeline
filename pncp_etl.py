@@ -301,7 +301,16 @@ def executar_etl(
         amparo_str = amparo.get("nome") or amparo.get("descricao") or ""
 
         fontes = item.get("fontesOrcamentarias") or []
-        fontes_str = ", ".join([str(f) for f in fontes]) if fontes else "Não informada"
+        fontes_nomes = []
+        for f in fontes:
+            if isinstance(f, dict):
+                fontes_nomes.append(f.get("nome") or f.get("descricao") or str(f))
+            elif f:
+                fontes_nomes.append(str(f))
+        fontes_str = ", ".join(fontes_nomes) if fontes_nomes else "Não informada"
+
+        link_origem = str(item.get("linkSistemaOrigem") or "").strip()
+        link_origem_str = link_origem if link_origem else "Publicado diretamente no PNCP"
 
         row = {
             "UF": uf_sigla,
@@ -337,7 +346,7 @@ def executar_etl(
             "Data Fim Recebimento Propostas": format_datetime(item.get("dataEncerramentoProposta")),
             "Última Atualização": format_datetime(item.get("dataAtualizacao")),
             "Link PNCP": link_pncp,
-            "Link Sistema Origem": item.get("linkSistemaOrigem", "")
+            "Link Sistema Origem": link_origem_str
         }
         linhas_tratadas.append(row)
 
