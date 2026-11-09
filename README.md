@@ -61,16 +61,19 @@ O ciclo de vida do projeto está dividido em cinco etapas fundamentais:
 
 ```text
 pncp-data-pipeline/
+├── .github/                      # Automacoes e CI/CD
+│   └── workflows/
+│       └── pipeline.yml          # Workflow do GitHub Actions (Execucao automatizada)
 ├── data/                         # Armazena os dados do projeto
 │   ├── .gitkeep
-│   ├── dados_ibge_ufs.csv        # Tabela dimensão oficial do IBGE (PIB e População)
+│   ├── dados_ibge_ufs.csv        # Tabela dimensao oficial do IBGE (PIB e Populacao)
 │   ├── dados_brutos_pncp.json    # JSON bruto baixado da API (Etapa 1)
 │   └── editais_pncp_PB_PE.csv    # Planilha tratada e consolidada (Etapa 2)
-├── download_pncp.py              # Script da Etapa 1: Extração da API
-├── pncp_etl.py                   # Script da Etapa 2: Transformação e regras DEILAS
-├── requirements.txt              # Dependências do projeto
-├── .gitignore                    # Regras de exclusão do Git
-└── README.md                     # Documentação do projeto
+├── download_pncp.py              # Script da Etapa 1: Extracao da API
+├── pncp_etl.py                   # Script da Etapa 2: Transformacao e regras DEILAS
+├── requirements.txt              # Dependencias do projeto
+├── .gitignore                    # Regras de exclusao do Git
+└── README.md                     # Documentacao do projeto
 ```
 
 ---
@@ -96,6 +99,16 @@ python download_pncp.py
 python pncp_etl.py
 ```
 *Gera: `data/editais_pncp_PB_PE.csv`*
+
+---
+
+## Execucao Automatizada via GitHub Actions
+
+O projeto conta com um workflow automatizado em `.github/workflows/pipeline.yml` que:
+* Executa a extracao (`download_pncp.py`) e o ETL (`pncp_etl.py`) em ambiente virtualizado Ubuntu.
+* Pode ser acionado manualmente pela aba **Actions** no GitHub (gatilho `workflow_dispatch`).
+* Roda de forma agendada diariamente as 06:00 BRT (09:00 UTC).
+* Gera e disponibiliza os arquivos finais (`editais_pncp_PB_PE.csv` e `dados_brutos_pncp.json`) para download na secao **Artifacts** de cada execucao.
 
 ---
 
