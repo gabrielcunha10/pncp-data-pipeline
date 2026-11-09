@@ -1,0 +1,72 @@
+name: Pipeline PNCP (Extração e ETL)
+
+on:
+  # Permite disparar o pipeline manualmente pela aba Actions do GitHub
+  workflow_dispatch:
+
+  # Executa diariamente de forma automática às 06:00 da manhã (horário de Brasília = 09:00 UTC)
+  schedule:
+    - cron: '0 9 * * *'
+
+  # Executa ao fazer push na branch main se houver alteração nos scripts ou dependências
+  push:
+    branches:
+      - main
+    paths:
+      - 'download_pncp.py'
+      - 'pncp_etl.py'
+      - 'requirements.txt'
+      - '.github/workflows/**'
+
+jobs:
+  executar-pipeline:
+    name: Extração e Processamento PNCP
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Ambiente Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Instalar Dependências
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 1. Executar Extração da API (download_pncp.py)
+        run: |
+          python download_pncp.py
+
+      - name: 2. Executar Transformação e Limpeza (pncp_etl.py)
+        run: |
+          python pncp_etl.py
+
+      - name: 3. Publicar Artefatos Gerados (CSV e JSON)
+        uses: actions/upload-artifact@v4
+        with:
+          name: editais-pncp-pb-pe
+          path: |
+            data/editais_pncp_PB_PE.csv
+            data/dados_brutos_pncp.json
+          retention-days: 30
+
+      - name: 4. Gerar Resumo da Execução no GitHub
+        if: always()
+        run: |
+          echo "## Resumo da Execução do Pipeline PNCP" >> $GITHUB_STEP_SUMMARY
+          echo "Data/Hora (UTC): $(date -u '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f "data/editais_pncp_PB_PE.csv" ]; then
+            TOTAL_EDITAIS=$(($(wc -l < data/editais_pncp_PB_PE.csv) - 1))
+            echo "Status: Sucesso" >> $GITHUB_STEP_SUMMARY
+            echo "Total de Editais Processados no CSV: **$TOTAL_EDITAIS**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Os arquivos gerados (**editais_pncp_PB_PE.csv** e **dados_brutos_pncp.json**) estão disponíveis para download na seção **Artifacts** desta execução." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Status: Falha na geração dos arquivos." >> $GITHUB_STEP_SUMMARY
+          fi
