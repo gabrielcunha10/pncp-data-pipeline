@@ -1,14 +1,11 @@
 name: Pipeline PNCP (Extração e ETL)
 
 on:
-  # Permite disparar o pipeline manualmente pela aba Actions do GitHub
   workflow_dispatch:
 
-  # Executa diariamente de forma automática às 06:00 da manhã (horário de Brasília = 09:00 UTC)
   schedule:
     - cron: '0 9 * * *'
 
-  # Executa ao fazer push na branch main se houver alteração nos scripts ou dependências
   push:
     branches:
       - main
@@ -18,7 +15,6 @@ on:
       - 'requirements.txt'
       - '.github/workflows/**'
 
-# Permissão para o GitHub Actions commitar e enviar o CSV atualizado de volta ao repositório
 permissions:
   contents: write
 

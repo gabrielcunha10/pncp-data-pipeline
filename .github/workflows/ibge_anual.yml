@@ -1,11 +1,8 @@
 name: Atualização Anual PIB IBGE (Novembro com Retry Diário)
 
 on:
-  # Permite disparar manualmente pela aba Actions do GitHub
   workflow_dispatch:
 
-  # Executa anualmente a partir da 2ª semana de novembro (dias 8 a 22 de novembro)
-  # Faz 1 tentativa (retry) por dia às 09:00 BRT (12:00 UTC) até o IBGE liberar o novo PIB
   schedule:
     - cron: '0 12 8-22 11 *'
 
@@ -50,3 +47,4 @@ jobs:
             git commit -m "chore(data): atualizar PIB IBGE com dados de $ANO_NOVO [skip ci]"
             git push
           fi
+
