@@ -41,6 +41,7 @@ def atualizar_dados_ibge(
     print("=" * 70)
 
     # Verifica se o ano-alvo já foi gravado anteriormente no CSV para evitar requisições desnecessárias
+    anos_ja_salvos = set()
     if os.path.exists(output_csv):
         with open(output_csv, "r", encoding="utf-8-sig") as f:
             reader = csv.DictReader(f, delimiter=";")
@@ -110,6 +111,10 @@ def atualizar_dados_ibge(
             f"[RETRY DIÁRIO] O PIB de {ano_alvo} ainda não foi liberado na API do IBGE "
             f"(último ano disponível: {ultimo_ano_ibge}). Nova tentativa será feita amanhã."
         )
+        if anos_encontrados and anos_encontrados.issubset(anos_ja_salvos):
+            print("Todos os anos retornados já constam no CSV. Arquivo mantido sem alterações.")
+            print("=" * 70)
+            return
 
     # 4. Montar linhas ordenadas por UF e Ano (decrescente)
     linhas_csv = []
@@ -150,7 +155,7 @@ def atualizar_dados_ibge(
     if linhas_csv:
         fieldnames = list(linhas_csv[0].keys())
         with open(output_csv, "w", encoding="utf-8", newline="") as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter=";")
+            writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter=";", lineterminator="\n")
             writer.writeheader()
             writer.writerows(linhas_csv)
 
