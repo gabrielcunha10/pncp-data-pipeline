@@ -4,6 +4,30 @@ Pipeline de dados desenvolvido para o projeto comparativo de compras públicas e
 
 ---
 
+## Bases de Dados Utilizadas
+
+O projeto integra três bases de dados públicas oficiais para cruzar as compras governamentais com os indicadores socioeconômicos dos municípios:
+
+1. **Base de Compras Públicas — PNCP (PB e PE)**
+   * **Órgão Mantenedor:** Governo Federal / Ministério da Gestão e da Inovação em Serviços Públicos (SEGES-MGI), instituído pela Lei nº 14.133/2021.
+   * **Escopo Territorial e Temporal:** Todos os órgãos municipais, estaduais e federais com atuação na Paraíba (PB) e Pernambuco (PE) no período de 2024 a 2026.
+   * **Conteúdo:** Editais de licitação, compras diretas (dispensas e inexigibilidades), valores estimados, objetos licitados, modalidades de contratação e dados dos órgãos compradores.
+   * **Links de Acesso:** [Portal PNCP](https://pncp.gov.br) | [API de Consulta de Propostas](https://pncp.gov.br/api/consulta/v1/contratacoes/proposta)
+
+2. **Base de Contas Regionais e PIB Municipal — IBGE SIDRA (Tabela 5938)**
+   * **Órgão Mantenedor:** Instituto Brasileiro de Geografia e Estatística (IBGE).
+   * **Escopo Territorial:** Cobertura de 100% dos municípios analisados: 223 municípios da Paraíba e 185 municípios de Pernambuco (408 municípios ao todo).
+   * **Conteúdo:** Produto Interno Bruto (PIB) a preços correntes e valor adicionado bruto municipal (série histórica recente consolidada).
+   * **Link de Acesso:** [IBGE SIDRA — Tabela 5938 (PIB dos Municípios)](https://sidra.ibge.gov.br/tabela/5938)
+
+3. **Base Demográfica Municipal — IBGE SIDRA (Tabelas 4709 e 6579)**
+   * **Órgão Mantenedor:** Instituto Brasileiro de Geografia e Estatística (IBGE).
+   * **Escopo Territorial:** Todos os 408 municípios de PB e PE.
+   * **Conteúdo:** População residente oficial do Censo Demográfico 2022 (Tabela 4709) e Estimativas Populacionais Anuais (Tabela 6579), utilizadas para calcular os indicadores de gasto público por habitante e renda per capita.
+   * **Links de Acesso:** [IBGE SIDRA — Tabela 4709 (Censo 2022)](https://sidra.ibge.gov.br/tabela/4709) | [IBGE SIDRA — Tabela 6579 (Estimativas)](https://sidra.ibge.gov.br/tabela/6579)
+
+---
+
 ## Etapas do Projeto
 
 O ciclo de vida do projeto está dividido em cinco etapas fundamentais:
@@ -125,7 +149,9 @@ O projeto conta com dois workflows automatizados em `.github/workflows/`:
 
 ## Estrutura da pasta data/
 
-* `data/dados_ibge_ufs.csv`: Tabela dimensao com dados demograficos e economicos estaduais do IBGE (PIB, populacao, crescimento real).
-* `data/dados_ibge_municipios.csv`: Tabela dimensao com PIB municipal, populacao e PIB per capita de todos os municipios de PB e PE (2020 a 2023).
+* `data/dados_ibge_ufs.csv`: Tabela dimensão com dados demográficos e econômicos estaduais do IBGE (PIB, população, crescimento real).
+* `data/dados_ibge_municipios.csv`: Tabela dimensão com PIB municipal, população e PIB per capita de todos os 408 municípios de PB e PE (2020 a 2023).
 * `data/editais_pncp_PB_PE.csv`: Base tratada e consolidada de editais (atualizada automaticamente pelo pipeline e versionada diretamente como CSV).
-* `data/dados_brutos_pncp.json`: Arquivo bruto temporario de extracao da API (ignorado pelo Git para manter o repositorio limpo).
+* `data/dados_brutos_pncp.json`: Arquivo bruto em JSON contendo as contratações públicas extraídas diretamente da API do PNCP (Etapa 1).
+* `data/dados_brutos_ibge_pib.json`: Arquivo bruto em JSON com as respostas da API SIDRA do IBGE para o PIB municipal (Tabela 5938).
+* `data/dados_brutos_ibge_populacao.json`: Arquivo bruto em JSON com a população municipal oficial do Censo 2022 do IBGE (Tabela 4709).
