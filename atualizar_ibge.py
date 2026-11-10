@@ -20,7 +20,7 @@ CRESCIMENTO_REAL_CONHECIDO = {
     ("PE", 2023): 2.4,
 }
 
-def atualizar_dados_ibge(
+def atualizar_dados_ibge_ufs(
     ano_inicial: int = 2020,
     output_csv: str = os.path.join("data", "dados_ibge_ufs.csv")
 ):
@@ -48,7 +48,7 @@ def atualizar_dados_ibge(
             anos_ja_salvos = {int(r["Ano_PIB"]) for r in reader if str(r.get("Ano_PIB", "")).isdigit()}
         if ano_alvo in anos_ja_salvos:
             print(f"\n[OK] O PIB do ano-alvo {ano_alvo} já está salvo em '{output_csv}'.")
-            print("Nenhuma nova consulta necessária até o próximo ciclo anual.")
+            print("Nenhuma nova consulta necessária para UFs até o próximo ciclo anual.")
             print("=" * 70)
             return
 
@@ -85,7 +85,7 @@ def atualizar_dados_ibge(
     url_pib = "https://apisidra.ibge.gov.br/values/t/5938/n3/25,26/v/37/p/all"
     resp_pib = session.get(url_pib, timeout=20)
     if resp_pib.status_code != 200:
-        print(f"[ERRO] Falha ao consultar Tabela 5938 do IBGE (HTTP {resp_pib.status_code}).")
+        print(f"[ERRO] Falha ao consultar Tabela 5938 do IBGE para UFs (HTTP {resp_pib.status_code}).")
         return
 
     pib_por_uf_ano = {}
@@ -102,17 +102,17 @@ def atualizar_dados_ibge(
                 anos_encontrados.add(ano)
 
     ultimo_ano_ibge = max(anos_encontrados) if anos_encontrados else None
-    print(f"\nAnos encontrados na API SIDRA: {sorted(anos_encontrados)}")
+    print(f"\nAnos de UFs encontrados na API SIDRA: {sorted(anos_encontrados)}")
 
     if ano_alvo in anos_encontrados:
-        print(f"[SUCESSO] O PIB de {ano_alvo} FOI PUBLICADO pelo IBGE e será gravado agora!")
+        print(f"[SUCESSO] O PIB estadual de {ano_alvo} FOI PUBLICADO pelo IBGE e será gravado agora!")
     else:
         print(
-            f"[RETRY DIÁRIO] O PIB de {ano_alvo} ainda não foi liberado na API do IBGE "
+            f"[RETRY DIÁRIO] O PIB estadual de {ano_alvo} ainda não foi liberado na API do IBGE "
             f"(último ano disponível: {ultimo_ano_ibge}). Nova tentativa será feita amanhã."
         )
         if anos_encontrados and anos_encontrados.issubset(anos_ja_salvos):
-            print("Todos os anos retornados já constam no CSV. Arquivo mantido sem alterações.")
+            print("Todos os anos de UFs retornados já constam no CSV. Mantido sem alterações.")
             print("=" * 70)
             return
 
@@ -154,7 +154,7 @@ def atualizar_dados_ibge(
 
     if linhas_csv:
         fieldnames = list(linhas_csv[0].keys())
-        with open(output_csv, "w", encoding="utf-8", newline="") as f:
+        with open(output_csv, "w", encoding="utf-8-sig", newline="") as f:
             writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter=";", lineterminator="\n")
             writer.writeheader()
             writer.writerows(linhas_csv)
@@ -162,4 +162,154 @@ def atualizar_dados_ibge(
         print(f"\nTabela '{output_csv}' verificada/atualizada com {len(linhas_csv)} registros.")
         print("=" * 70)
 
-atualizar_dados_ibge()
+
+def atualizar_dados_ibge_municipios(
+    ano_inicial: int = 2020,
+    output_csv: str = os.path.join("data", "dados_ibge_municipios.csv")
+):
+    """
+    Consulta a API oficial SIDRA do IBGE para todos os municípios de PB e PE:
+    - Tabela 5938 (n6/in n3 25,26): PIB Municipal a preços correntes (Mil Reais)
+    - Tabela 4709 (n6/in n3 25,26): População Censo 2022
+    - Tabela 6579 (n6/in n3 25,26): População Estimada Anual
+    Calcula o PIB per capita municipal e salva em data/dados_ibge_municipios.csv.
+    """
+    os.makedirs(os.path.dirname(os.path.abspath(output_csv)), exist_ok=True)
+    ano_alvo = datetime.now().year - 2
+
+    print("=" * 70)
+    print("   IBGE SIDRA API - ATUALIZAÇÃO ANUAL DE PIB E POPULAÇÃO (MUNICÍPIOS)")
+    print(f"   Municípios: PB e PE | Série: {ano_inicial} até {ano_alvo}")
+    print("=" * 70)
+
+    anos_ja_salvos = set()
+    if os.path.exists(output_csv):
+        with open(output_csv, "r", encoding="utf-8-sig") as f:
+            reader = csv.DictReader(f, delimiter=";")
+            anos_ja_salvos = {int(r["Ano_PIB"]) for r in reader if str(r.get("Ano_PIB", "")).isdigit()}
+        if ano_alvo in anos_ja_salvos:
+            print(f"\n[OK] O PIB municipal de {ano_alvo} já está salvo em '{output_csv}'.")
+            print("Nenhuma nova consulta necessária para Municípios até o próximo ciclo anual.")
+            print("=" * 70)
+            return
+
+    session = requests.Session()
+
+    # 1. População Censo 2022 por Município (Tabela 4709)
+    print("\n[1/3] Consultando População do Censo Demográfico 2022 (Tabela 4709)...")
+    pop_mun_ano = {}
+    url_censo = "https://apisidra.ibge.gov.br/values/t/4709/n6/in%20n3%2025,26/v/93/p/2022"
+    resp_censo = session.get(url_censo, timeout=30)
+    if resp_censo.status_code == 200:
+        for item in resp_censo.json()[1:]:
+            cod_ibge = str(item.get("D1C", ""))
+            val = item.get("V", "")
+            if str(val).isdigit():
+                pop_val = int(val)
+                pop_mun_ano[(cod_ibge, 2022)] = pop_val
+                pop_mun_ano[(cod_ibge, 2023)] = pop_val
+
+    # 2. População Estimada Anual por Município (Tabela 6579)
+    print("[2/3] Consultando Estimativas Anuais de População (Tabela 6579)...")
+    url_pop = "https://apisidra.ibge.gov.br/values/t/6579/n6/in%20n3%2025,26/v/9324/p/all"
+    resp_pop = session.get(url_pop, timeout=30)
+    if resp_pop.status_code == 200:
+        for item in resp_pop.json()[1:]:
+            cod_ibge = str(item.get("D1C", ""))
+            ano_str = str(item.get("D3C", ""))
+            val = item.get("V", "")
+            if ano_str.isdigit() and str(val).isdigit():
+                ano = int(ano_str)
+                if ano >= ano_inicial:
+                    pop_mun_ano[(cod_ibge, ano)] = int(val)
+
+    # 3. PIB Municipal a Preços Correntes em Mil Reais (Tabela 5938)
+    print("[3/3] Consultando PIB Municipal a Preços Correntes (Tabela 5938)...")
+    url_pib = "https://apisidra.ibge.gov.br/values/t/5938/n6/in%20n3%2025,26/v/37/p/all"
+    resp_pib = session.get(url_pib, timeout=40)
+    if resp_pib.status_code != 200:
+        print(f"[ERRO] Falha ao consultar Tabela 5938 de municípios (HTTP {resp_pib.status_code}).")
+        return
+
+    dados_pib = resp_pib.json()[1:]
+    linhas_csv = []
+    anos_encontrados = set()
+
+    for item in dados_pib:
+        cod_ibge = str(item.get("D1C", ""))
+        nome_completo = str(item.get("D1N", ""))
+        ano_str = str(item.get("D3C", ""))
+        val_str = str(item.get("V", "")).strip()
+
+        if not (ano_str.isdigit() and val_str.isdigit()):
+            continue
+
+        ano = int(ano_str)
+        if ano < ano_inicial:
+            continue
+
+        anos_encontrados.add(ano)
+
+        # Tratar nome e UF a partir de "Nome da Cidade - UF"
+        if " - " in nome_completo:
+            partes = nome_completo.rsplit(" - ", 1)
+            municipio = partes[0].strip()
+            uf_sigla = partes[1].strip()
+        else:
+            municipio = nome_completo
+            uf_sigla = "PB" if cod_ibge.startswith("25") else ("PE" if cod_ibge.startswith("26") else "")
+
+        nome_estado = "Paraíba" if uf_sigla == "PB" else "Pernambuco"
+        eh_capital = "Sim" if municipio.lower() in ["joao pessoa", "joão pessoa", "recife"] else "Não"
+
+        # Tabela 5938 informa em Mil Reais
+        pib_reais = int(val_str) * 1000
+
+        pop = pop_mun_ano.get((cod_ibge, ano))
+        if not pop:
+            anos_disp = sorted([a for (c, a) in pop_mun_ano.keys() if c == cod_ibge])
+            pop = pop_mun_ano[(cod_ibge, anos_disp[-1])] if anos_disp else 1
+
+        pib_per_capita = round(pib_reais / pop, 2)
+
+        # Formatação do PIB
+        if pib_reais >= 1_000_000_000:
+            pib_fmt = f"R$ {pib_reais / 1_000_000_000:,.2f} bilhões".replace(".", ",")
+        else:
+            pib_fmt = f"R$ {pib_reais / 1_000_000:,.2f} milhões".replace(".", ",")
+
+        linhas_csv.append({
+            "Codigo_Municipio_IBGE": cod_ibge,
+            "Municipio": municipio,
+            "UF": uf_sigla,
+            "Nome_Estado": nome_estado,
+            "É Capital": eh_capital,
+            "Ano_PIB": ano,
+            "Populacao": pop,
+            "PIB_Reais": pib_reais,
+            "PIB_Formatado": pib_fmt,
+            "PIB_per_Capita_Reais": f"{pib_per_capita:.2f}"
+        })
+
+    # Ordenar por UF, Nome do Município e Ano (decrescente)
+    linhas_csv.sort(key=lambda r: (r["UF"], r["Municipio"], -r["Ano_PIB"]))
+
+    if linhas_csv:
+        fieldnames = list(linhas_csv[0].keys())
+        with open(output_csv, "w", encoding="utf-8-sig", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter=";", lineterminator="\n")
+            writer.writeheader()
+            writer.writerows(linhas_csv)
+
+        print(f"\n[SUCESSO] Tabela '{output_csv}' gravada com {len(linhas_csv)} registros municipais.")
+        print(f"Anos municipais processados: {sorted(anos_encontrados)}")
+        print("=" * 70)
+
+
+def atualizar_tudo():
+    atualizar_dados_ibge_ufs()
+    atualizar_dados_ibge_municipios()
+
+
+if __name__ == "__main__":
+    atualizar_tudo()

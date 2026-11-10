@@ -206,6 +206,36 @@ def status_valor_transparencia(valor: Any) -> str:
     except Exception:
         return "Não Informado / Sigiloso"
 
+def carregar_dados_ibge_municipios(
+    caminho_csv: str = os.path.join("data", "dados_ibge_municipios.csv")
+) -> dict:
+    """
+    Carrega data/dados_ibge_municipios.csv e retorna um dicionário mapeando
+    (municipio_normalizado, uf) para os dados socioeconômicos mais recentes do IBGE.
+    """
+    mapa = {}
+    if not os.path.exists(caminho_csv):
+        return mapa
+    try:
+        with open(caminho_csv, "r", encoding="utf-8-sig") as f:
+            reader = csv.DictReader(f, delimiter=";")
+            # Ordenar por ano para que a última iteração guarde o ano mais recente (ex: 2023)
+            linhas = sorted(list(reader), key=lambda r: int(r.get("Ano_PIB", 0) or 0))
+            for r in linhas:
+                m_norm = remover_acentos(r.get("Municipio", ""))
+                uf = r.get("UF", "").strip().upper()
+                if m_norm and uf:
+                    mapa[(m_norm, uf)] = {
+                        "Codigo_IBGE": r.get("Codigo_Municipio_IBGE", ""),
+                        "Populacao": r.get("Populacao", ""),
+                        "PIB_Reais": r.get("PIB_Reais", ""),
+                        "PIB_Formatado": r.get("PIB_Formatado", ""),
+                        "PIB_per_Capita_Reais": r.get("PIB_per_Capita_Reais", "")
+                    }
+    except Exception as e:
+        print(f"[AVISO] Não foi possível carregar dados IBGE de municípios: {e}")
+    return mapa
+
 def is_recebendo_proposta(item: dict, ref_dt: datetime) -> bool:
     situacao = str(item.get("situacaoCompraNome", "")).strip().lower()
     if situacao in ["revogada", "anulada", "suspensa", "cancelada"]:
@@ -266,6 +296,25 @@ def executar_etl(
     print(f"\nTotal de registros brutos lidos: {len(itens_brutos)}")
     print(f"Total de editais já existentes no CSV: {len(registros_por_id)}")
 
+    dados_ibge_mun = carregar_dados_ibge_municipios()
+    print(f"Total de municípios carregados da base do IBGE: {len(dados_ibge_mun)}")
+
+    # Enriquecer registros já existentes que ainda não possuam as colunas do PIB municipal
+    enriquecidos_ibge = 0
+    for chave, r in registros_por_id.items():
+        if "PIB do Município" not in r or not r.get("PIB do Município"):
+            m_norm = remover_acentos(r.get("Município", ""))
+            uf = r.get("UF", "").strip().upper()
+            ibge_info = dados_ibge_mun.get((m_norm, uf), {})
+            r["População do Município"] = ibge_info.get("Populacao", "")
+            r["PIB do Município"] = ibge_info.get("PIB_Formatado", "")
+            r["PIB do Município Numérico"] = ibge_info.get("PIB_Reais", "")
+            r["PIB per Capita Municipal"] = ibge_info.get("PIB_per_Capita_Reais", "")
+            enriquecidos_ibge += 1
+
+    if enriquecidos_ibge > 0:
+        print(f"Editais existentes enriquecidos com PIB e População do IBGE: {enriquecidos_ibge}")
+
     now_dt = datetime.now()
     mantidos_sem_reprocessar = 0
     novos_inseridos = 0
@@ -312,6 +361,7 @@ def executar_etl(
         municipio = unidade.get("municipioNome", "")
         uf_sigla = unidade.get("ufSigla") or uf_consulta
         localidade = f"{municipio}/{uf_sigla}" if municipio else uf_sigla
+        ibge_info = dados_ibge_mun.get((remover_acentos(municipio), uf_sigla.strip().upper()), {})
 
         modalidade = item.get("modalidadeNome", "")
         modo_disputa = item.get("modoDisputaNome", "")
@@ -371,6 +421,10 @@ def executar_etl(
             "Localidade": localidade,
             "Município": municipio,
             "É Capital": is_capital(municipio, uf_sigla),
+            "População do Município": ibge_info.get("Populacao", ""),
+            "PIB do Município": ibge_info.get("PIB_Formatado", ""),
+            "PIB do Município Numérico": ibge_info.get("PIB_Reais", ""),
+            "PIB per Capita Municipal": ibge_info.get("PIB_per_Capita_Reais", ""),
             "Setor / Área": classificar_setor(objeto_limpo, unidade_nome, razao_social),
             "Motivo da Proposta": motivo_proposta,
             "Palavras-Chave do Objeto": palavras_chave,
@@ -399,7 +453,13 @@ def executar_etl(
     )
 
     if linhas_finais:
-        houve_mudanca = (novos_inseridos > 0 or atualizados > 0 or removidos_inativos > 0 or not os.path.exists(output_csv))
+        houve_mudanca = (
+            novos_inseridos > 0 
+            or atualizados > 0 
+            or removidos_inativos > 0 
+            or enriquecidos_ibge > 0 
+            or not os.path.exists(output_csv)
+        )
         if houve_mudanca:
             fieldnames = list(linhas_finais[0].keys())
             with open(output_csv, "w", encoding="utf-8-sig", newline="") as f:
