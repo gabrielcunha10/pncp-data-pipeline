@@ -11,14 +11,29 @@ def baixar_dados_brutos(
     output_json: str = os.path.join("data", "dados_brutos_pncp.json")
 ):
     """
-    Fase de Extração (Extract):
-    Consome a API pública do PNCP e salva os dados brutos (JSON) exatamente
-    como são entregues pelo servidor na pasta data/.
+    Fase de Extração Incremental e Idempotente (Extract):
+    Consome a API pública do PNCP e realiza Upsert (Update + Insert) pelo
+    identificador único 'numeroControlePNCP' no arquivo data/dados_brutos_pncp.json.
     """
     os.makedirs(os.path.dirname(os.path.abspath(output_json)), exist_ok=True)
 
     if not data_final:
         data_final = (datetime.now() + timedelta(days=60)).strftime("%Y%m%d")
+
+    # Carrega base bruta existente (se houver) para garantir extração incremental sem duplicatas
+    itens_por_id = {}
+    if os.path.exists(output_json):
+        try:
+            with open(output_json, "r", encoding="utf-8") as f:
+                existentes = json.load(f)
+                for item in existentes:
+                    chave = item.get("numeroControlePNCP")
+                    if chave:
+                        itens_por_id[chave] = item
+        except Exception:
+            itens_por_id = {}
+
+    qtd_antes = len(itens_por_id)
 
     session = requests.Session()
     session.headers.update({
@@ -27,12 +42,13 @@ def baixar_dados_brutos(
     })
 
     print("=" * 70)
-    print("   PNCP - EXTRAÇÃO DE DADOS BRUTOS DA API")
+    print("   PNCP - EXTRAÇÃO INCREMENTAL E IDEMPOTENTE DA API")
     print(f"   UFs: {', '.join(ufs)} | Status: Recebendo Proposta")
-    print(f"   Arquivo de Destino: {output_json}")
+    print(f"   Registros já existentes em cache: {qtd_antes}")
     print("=" * 70)
 
-    todos_itens = []
+    novos_extraidos = 0
+    atualizados_extraidos = 0
 
     for uf in ufs:
         uf = uf.upper().strip()
@@ -78,19 +94,27 @@ def baixar_dados_brutos(
 
             for item in itens:
                 item["_uf_consulta"] = uf
-                todos_itens.append(item)
+                chave = item.get("numeroControlePNCP")
+                if chave:
+                    if chave in itens_por_id:
+                        atualizados_extraidos += 1
+                    else:
+                        novos_extraidos += 1
+                    itens_por_id[chave] = item
                 total_uf += 1
 
-            print(f"   [{uf}] Página {pagina}/{total_paginas} baixada ({total_uf} itens acumulados)")
+            print(f"   [{uf}] Página {pagina}/{total_paginas} baixada ({total_uf} itens lidos)")
             pagina += 1
 
+    lista_consolidada = list(itens_por_id.values())
     with open(output_json, "w", encoding="utf-8") as f:
-        json.dump(todos_itens, f, ensure_ascii=False, indent=2)
+        json.dump(lista_consolidada, f, ensure_ascii=False, indent=2)
 
     print("\n" + "=" * 70)
-    print(f"   Extração concluída!")
-    print(f"   Total de registros brutos salvos: {len(todos_itens)}")
-    print(f"   Arquivo salvo: {output_json}")
+    print("   Extração Incremental Concluída!")
+    print(f"   - Novos editais inéditos adicionados: {novos_extraidos}")
+    print(f"   - Editais existentes sincronizados:   {atualizados_extraidos}")
+    print(f"   - Total único consolidado no JSON:    {len(lista_consolidada)}")
     print("=" * 70)
 
 baixar_dados_brutos()

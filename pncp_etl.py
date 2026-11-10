@@ -231,14 +231,15 @@ def executar_etl(
     output_csv: str = os.path.join("data", "editais_pncp_PB_PE.csv")
 ):
     """
-    Fase de Transformação e Carga (Transform & Load):
-    Lê o JSON com os dados brutos da pasta data/, aplica regras de negócio,
-    limpeza textual, classificação temática e por motivo, gerando o CSV consolidado em data/.
+    Fase de Transformação e Carga Incremental e Idempotente (Transform & Load):
+    Lê os registros já processados em data/editais_pncp_PB_PE.csv, processa o ETL
+    apenas para editais inéditos ou atualizados (Upsert por 'ID Contratação PNCP')
+    e mantém os registros inalterados sem reprocessamento desnecessário.
     """
     os.makedirs(os.path.dirname(os.path.abspath(output_csv)), exist_ok=True)
 
     print("=" * 70)
-    print("   PNCP - ETL: TRANSFORMAÇÃO E CARGA DOS DADOS")
+    print("   PNCP - ETL INCREMENTAL E IDEMPOTENTE (UPSERT)")
     print(f"   Origem: {input_json} -> Destino: {output_csv}")
     print("=" * 70)
 
@@ -249,13 +250,52 @@ def executar_etl(
         print(f"Erro: Arquivo '{input_json}' não encontrado. Execute o 'download_pncp.py' primeiro.")
         return
 
+    # 1. Carregar base CSV já existente para evitar reprocessamento de editais inalterados
+    registros_por_id = {}
+    if os.path.exists(output_csv):
+        try:
+            with open(output_csv, "r", encoding="utf-8-sig") as f:
+                reader = csv.DictReader(f, delimiter=";")
+                for r in reader:
+                    chave = r.get("ID Contratação PNCP", "").strip()
+                    if chave:
+                        registros_por_id[chave] = r
+        except Exception:
+            registros_por_id = {}
+
     print(f"\nTotal de registros brutos lidos: {len(itens_brutos)}")
+    print(f"Total de editais já existentes no CSV: {len(registros_por_id)}")
+
     now_dt = datetime.now()
-    linhas_tratadas = []
+    mantidos_sem_reprocessar = 0
+    novos_inseridos = 0
+    atualizados = 0
+    removidos_inativos = 0
 
     for item in itens_brutos:
-        if not is_recebendo_proposta(item, ref_dt=now_dt):
+        num_controle = str(item.get("numeroControlePNCP") or "").strip()
+        if not num_controle:
             continue
+
+        situacao = str(item.get("situacaoCompraNome", "")).strip().lower()
+        if situacao in ["revogada", "anulada", "suspensa", "cancelada"]:
+            if num_controle in registros_por_id:
+                del registros_por_id[num_controle]
+                removidos_inativos += 1
+            continue
+
+        ultima_atualizacao_fmt = format_datetime(item.get("dataAtualizacao"))
+
+        # Se o edital já está no CSV e não sofreu alteração no portal, pula o reprocessamento do ETL
+        if num_controle in registros_por_id:
+            if registros_por_id[num_controle].get("Última Atualização") == ultima_atualizacao_fmt:
+                mantidos_sem_reprocessar += 1
+                continue
+            eh_atualizacao = True
+        else:
+            if not is_recebendo_proposta(item, ref_dt=now_dt):
+                continue
+            eh_atualizacao = False
 
         uf_consulta = item.get("_uf_consulta", "")
         orgao = item.get("orgaoEntidade") or {}
@@ -283,7 +323,6 @@ def executar_etl(
 
         ano = item.get("anoCompra")
         seq = item.get("sequencialCompra")
-        num_controle = item.get("numeroControlePNCP", "")
         link_pncp = f"https://pncp.gov.br/app/editais/{cnpj}/{ano}/{seq}" if (cnpj and ano and seq) else ""
 
         dt_pub_str = item.get("dataPublicacaoPncp")
@@ -344,23 +383,38 @@ def executar_etl(
             "Data de Divulgação PNCP": format_datetime(dt_pub_str),
             "Data Início Recebimento Propostas": format_datetime(item.get("dataAberturaProposta")),
             "Data Fim Recebimento Propostas": format_datetime(item.get("dataEncerramentoProposta")),
-            "Última Atualização": format_datetime(item.get("dataAtualizacao")),
+            "Última Atualização": ultima_atualizacao_fmt,
             "Link PNCP": link_pncp,
             "Link Sistema Origem": link_origem_str
         }
-        linhas_tratadas.append(row)
+        registros_por_id[num_controle] = row
+        if eh_atualizacao:
+            atualizados += 1
+        else:
+            novos_inseridos += 1
 
-    if linhas_tratadas:
-        fieldnames = list(linhas_tratadas[0].keys())
-        with open(output_csv, "w", encoding="utf-8-sig", newline="") as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter=";")
-            writer.writeheader()
-            writer.writerows(linhas_tratadas)
+    linhas_finais = sorted(
+        registros_por_id.values(),
+        key=lambda r: (r.get("UF", ""), r.get("ID Contratação PNCP", ""))
+    )
+
+    if linhas_finais:
+        houve_mudanca = (novos_inseridos > 0 or atualizados > 0 or removidos_inativos > 0 or not os.path.exists(output_csv))
+        if houve_mudanca:
+            fieldnames = list(linhas_finais[0].keys())
+            with open(output_csv, "w", encoding="utf-8-sig", newline="") as f:
+                writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter=";", lineterminator="\n")
+                writer.writeheader()
+                writer.writerows(linhas_finais)
 
         print("\n" + "=" * 70)
-        print(f"   ETL Concluído!")
-        print(f"   Total de editais tratados e salvos: {len(linhas_tratadas)}")
-        print(f"   Arquivo gerado: {output_csv}")
+        print("   ETL Incremental Concluído!")
+        print(f"   - Editais mantidos (sem reprocessar): {mantidos_sem_reprocessar}")
+        print(f"   - Novos editais inseridos:            {novos_inseridos}")
+        print(f"   - Editais atualizados (retificados):  {atualizados}")
+        print(f"   - Editais revogados/suspensos remov.: {removidos_inativos}")
+        print(f"   - Total único consolidado no CSV:     {len(linhas_finais)}")
+        print(f"   Arquivo salvo: {output_csv}")
         print("=" * 70)
     else:
         print("\nNenhum registro aprovado no filtro.")
