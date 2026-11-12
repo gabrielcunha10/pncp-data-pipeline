@@ -291,6 +291,11 @@ def atualizar_dados_ibge_municipios(
             "PIB_per_Capita_Reais": f"{pib_per_capita:.2f}"
         })
 
+    if ano_alvo not in anos_encontrados and anos_encontrados and anos_encontrados.issubset(anos_ja_salvos):
+        print("Todos os anos de Municípios retornados já constam no CSV. Mantido sem alterações.")
+        print("=" * 70)
+        return
+
     # Ordenar por UF, Nome do Município e Ano (decrescente)
     linhas_csv.sort(key=lambda r: (r["UF"], r["Municipio"], -r["Ano_PIB"]))
 

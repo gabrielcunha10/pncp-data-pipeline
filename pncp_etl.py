@@ -461,7 +461,19 @@ def executar_etl(
             or not os.path.exists(output_csv)
         )
         if houve_mudanca:
-            fieldnames = list(linhas_finais[0].keys())
+            fieldnames = [
+                "UF", "Número do Edital", "Tipo de Instrumento", "ID Contratação PNCP",
+                "Situação", "Modalidade de Contratação", "Modo de Disputa", "Tipo de Compra",
+                "Amparo Legal", "SRP", "Fonte Orçamentária", "Órgão", "CNPJ do Órgão",
+                "Nível de Governo (Esfera)", "Poder", "Unidade Compradora", "Localidade",
+                "Município", "É Capital", "População do Município", "PIB do Município",
+                "PIB do Município Numérico", "PIB per Capita Municipal", "Setor / Área",
+                "Motivo da Proposta", "Palavras-Chave do Objeto", "Objeto",
+                "Valor Total Estimado", "Valor Estimado Numérico", "Status do Valor",
+                "Ano Publicação", "Ano/Mês Publicação", "Data de Divulgação PNCP",
+                "Data Início Recebimento Propostas", "Data Fim Recebimento Propostas",
+                "Última Atualização", "Link PNCP", "Link Sistema Origem"
+            ]
             with open(output_csv, "w", encoding="utf-8-sig", newline="") as f:
                 writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter=";", lineterminator="\n")
                 writer.writeheader()
