@@ -37,31 +37,33 @@ O ciclo de vida do projeto está dividido em cinco etapas fundamentais:
 ```
 
 ### 1. Extração dos Dados
-* Consumo automatizado dos endpoints públicos da API de Consulta do PNCP (`pncp.gov.br/api/consulta`).
+* Consumo automatizado dos endpoints públicos da API de Consulta do PNCP (`pncp.gov.br/api/consulta`) e da API SIDRA do IBGE (`apisidra.ibge.gov.br`).
+* Orquestração via **Prefect** (`@flow` e `@task`) com retentativas automáticas (`retries=2`) em caso de instabilidade.
 * Filtro aplicado para contratações no status de recebimento de proposta (`status=recebendo_proposta`) para as UFs `PB` e `PE`.
-* Tratamento de paginação e controle de taxa de requisições com retentativas automáticas e backoff exponencial contra HTTP 429.
+* Tratamento de paginação, controle de taxa de requisições com backoff exponencial contra HTTP 429 e registro de auditoria em `logs/pipeline.log`.
 * Armazenamento dos dados brutos sem perdas em `data/dados_brutos_pncp.json`.
-* **Script:** `download_pncp.py`
+* **Scripts:** `download_pncp.py` e `atualizar_ibge.py`
 
 ### 2. ETL (Extração, Transformação e Carga)
-* Leitura local dos dados brutos da pasta `data/`.
-* Limpeza e higienização de textos, normalização de caracteres e tratamento de valores nulos.
+* Orquestrado via **Prefect** (`flow_etl_pncp`), com leitura local dos dados brutos da pasta `data/` e logs estruturados em `logs/pipeline.log`.
+* Limpeza e higienização de textos, normalização de caracteres, remoção de tags de portais e tratamento de valores nulos.
 * Formatação padronizada de identificadores (CNPJ), moedas (R$) e datas (ISO e padrão brasileiro).
+* Upsert incremental e idempotente por `ID Contratação PNCP`, removendo automaticamente editais revogados, anulados, suspensos ou cancelados.
+* Cruzamento socioeconômico prioritário pelo **`Código IBGE do Município`** (7 dígitos) vindo da API (com fallback por nome normalizado + UF).
 * Enriquecimento das variáveis analíticas do modelo DEILAS:
-  * Níveis de Governo (Municipal, Estadual, Federal).
-  * Poderes (Executivo, Legislativo, Judiciário).
-  * Classificação setorial temática (Saúde, Educação, Obras, Transporte, Informática, Outros).
+  * Níveis de Governo (Municipal, Estadual, Federal) e Poderes (Executivo, Legislativo, Judiciário).
+  * Classificação setorial temática (`Setor / Área`) priorizando **o item/serviço adquirido no `Objeto`** (com secretaria/órgão apenas como fallback).
   * Indicador de Capital vs Interior (João Pessoa e Recife).
   * Modalidade da compra (Compra Direta sem disputa vs Disputa Aberta).
-  * Indicador de transparência (valores informados vs zerados ou sigilosos).
-* Geração do arquivo tabular consolidado em `data/editais_pncp_PB_PE.csv`.
+  * Indicador de transparência (`Status do Valor`: informado vs zerado ou sigiloso) e classificação em `Faixa de PIB per Capita`.
+* Geração do arquivo tabular consolidado (40 colunas) em `data/editais_pncp_PB_PE.csv`.
 * **Script:** `pncp_etl.py`
 
 ### 3. Realização de Testes para Validação ao Banco
-* Validação do esquema e dos tipos de dados antes do carregamento no banco.
-* Verificação de chaves primárias e unicidade (ID Contratação PNCP).
-* Checagem de integridade referencial e consistência de valores numéricos e datas.
-* Testes de sanidade para garantir aderência ao modelo de dados relacional.
+* Suíte automatizada com **33 testes em `pytest`** (`test_pipeline.py`) executada localmente e nos workflows do GitHub Actions antes de qualquer gravação final.
+* Testes unitários e de integração isolados com `tmp_path` e `monkeypatch` para os módulos `download_pncp.py`, `atualizar_ibge.py` e `pncp_etl.py`.
+* Validação de esquema (40 colunas obrigatórias), unicidade da chave primária (`ID Contratação PNCP`) e integridade referencial 100% da chave estrangeira (`Código IBGE do Município`).
+* Checagem de tipagem numérica para SQL (`INT`/`FLOAT`), regras de negócio DEILAS, registro de `@flow`/`@task` do Prefect e geração de logs em `logs/pipeline.log`.
 
 ### 4. Inserção no Banco de Dados
 * Criação da estrutura de tabelas no banco de dados relacional (PostgreSQL / MySQL / SQLite).
@@ -88,19 +90,22 @@ O ciclo de vida do projeto está dividido em cinco etapas fundamentais:
 pncp-data-pipeline/
 ├── .github/                      # Automacoes e CI/CD
 │   └── workflows/
-│       ├── pipeline.yml          # Workflow diario do PNCP (Extracao e ETL)
-│       └── ibge_anual.yml        # Workflow anual do IBGE (Novembro com retry diario)
+│       ├── pipeline.yml          # Workflow diario do PNCP (Prefect + Pytest)
+│       └── ibge_anual.yml        # Workflow anual do IBGE (Prefect + Pytest)
 ├── data/                         # Armazena os dados do projeto
 │   ├── .gitkeep
 │   ├── dados_ibge_ufs.csv        # Serie historica oficial do IBGE por Estado (PIB e Populacao)
 │   ├── dados_ibge_municipios.csv # Serie historica oficial do IBGE por Municipio (PIB e PIB per capita)
 │   ├── dados_brutos_pncp.json    # JSON bruto baixado da API (Etapa 1)
 │   └── editais_pncp_PB_PE.csv    # Planilha tratada e consolidada (Etapa 2)
-├── atualizar_ibge.py             # Script que consulta a API SIDRA do IBGE (UFs e Municipios)
-├── download_pncp.py              # Script da Etapa 1: Extracao da API do PNCP
-├── pncp_etl.py                   # Script da Etapa 2: Transformacao e regras DEILAS
-├── requirements.txt              # Dependencias do projeto
-├── .gitignore                    # Regras de exclusao do Git
+├── logs/                         # Logs rotativos de execucao (gerado automaticamente)
+│   └── pipeline.log
+├── atualizar_ibge.py             # Script Prefect que consulta a API SIDRA do IBGE (UFs e Municipios)
+├── download_pncp.py              # Script Prefect da Etapa 1: Extracao da API do PNCP
+├── pncp_etl.py                   # Script Prefect da Etapa 2: Transformacao, limpeza e regras DEILAS
+├── test_pipeline.py              # Suite de testes unitarios, integracao e Data Quality (pytest)
+├── requirements.txt              # Dependencias do projeto (requests, python-dateutil, pytest, prefect)
+├── .gitignore                    # Regras de exclusao do Git (.venv, .vscode, JSONs brutos, logs)
 └── README.md                     # Documentacao do projeto
 ```
 
@@ -108,9 +113,12 @@ pncp-data-pipeline/
 
 ## Como Executar o Pipeline Localmente
 
-### 1. Instalar as dependências
+### 1. Criar ambiente virtual e instalar as dependências
 
 ```bash
+python -m venv .venv
+# Windows (PowerShell):
+.\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 ```
 
@@ -119,14 +127,21 @@ pip install -r requirements.txt
 ```bash
 python download_pncp.py
 ```
-*Gera: `data/dados_brutos_pncp.json`*
+*Gera: `data/dados_brutos_pncp.json` e registra eventos em `logs/pipeline.log`*
 
 ### 3. Executar o ETL (Etapa 2)
 
 ```bash
 python pncp_etl.py
 ```
-*Gera: `data/editais_pncp_PB_PE.csv`*
+*Gera: `data/editais_pncp_PB_PE.csv` e registra eventos em `logs/pipeline.log`*
+
+### 4. Executar os Testes de Validação (Etapa 3)
+
+```bash
+pytest -v
+```
+*Executa os 33 testes de unidade, integração e qualidade de dados antes da carga no banco.*
 
 ---
 
@@ -135,15 +150,15 @@ python pncp_etl.py
 O projeto conta com dois workflows automatizados em `.github/workflows/`:
 
 ### 1. Pipeline PNCP (`.github/workflows/pipeline.yml`)
-* Executa a extracao (`download_pncp.py`) e o ETL (`pncp_etl.py`) em ambiente virtualizado Ubuntu.
+* Executa a extracao (`download_pncp.py`), o ETL (`pncp_etl.py`) orquestrados com **Prefect** e valida toda a base com **`pytest -v`** antes de commitar.
 * Pode ser acionado manualmente pela aba **Actions** no GitHub (gatilho `workflow_dispatch`).
 * Roda de forma agendada diariamente as 06:00 BRT (09:00 UTC).
-* Salva e commita o arquivo final `data/editais_pncp_PB_PE.csv` diretamente no repositório GitHub (arquivo .csv avulso, sem necessidade de baixar arquivos compactados .zip).
+* Caso os 33 testes passem, salva e commita o arquivo final `data/editais_pncp_PB_PE.csv` diretamente no repositório GitHub (sem ZIP).
 
 ### 2. Atualizacao Anual do PIB IBGE (`.github/workflows/ibge_anual.yml`)
-* Executa o script `atualizar_ibge.py`, que consome a API oficial SIDRA do IBGE (Tabelas 5938, 6579 e 4709).
+* Executa o script `atualizar_ibge.py` via **Prefect**, consumindo a API oficial SIDRA do IBGE (Tabelas 5938, 6579 e 4709), seguido da validação com **`pytest -v`**.
 * Roda anualmente a partir da segunda semana de novembro (`dias 8 a 22 de novembro`, as 09:00 BRT / 12:00 UTC), fazendo 1 tentativa (retry) por dia ate o IBGE publicar a nova edicao das Contas Regionais (ex: PIB de 2024 em novembro de 2026).
-* Assim que o novo ano e detectado na API do IBGE, atualiza e commita automaticamente os arquivos `data/dados_ibge_ufs.csv` e `data/dados_ibge_municipios.csv`. Nos dias seguintes da janela, identifica que o ano-alvo ja foi salvo e encerra imediatamente sem novas requisicoes.
+* Assim que o novo ano e detectado na API do IBGE e validado nos testes, atualiza e commita automaticamente os arquivos `data/dados_ibge_ufs.csv` e `data/dados_ibge_municipios.csv`. Nos dias seguintes da janela, identifica que o ano-alvo ja foi salvo e encerra imediatamente sem novas requisicoes.
 
 ---
 
