@@ -31,15 +31,19 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: 1. Consultar API SIDRA do IBGE (atualizar_ibge.py)
+      - name: 1. Consultar API SIDRA do IBGE via Prefect (atualizar_ibge.py)
         run: |
           python atualizar_ibge.py
 
-      - name: 2. Commitar e Enviar caso o novo PIB tenha sido lançado
+      - name: 2. Executar Testes e Validação de Qualidade de Dados (Pytest)
+        run: |
+          pytest -v
+
+      - name: 3. Commitar e Enviar caso o novo PIB tenha sido lançado
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add data/dados_ibge_ufs.csv
+          git add data/dados_ibge_ufs.csv data/dados_ibge_municipios.csv
           if git diff --staged --quiet; then
             echo "Nenhum dado novo do IBGE publicado hoje. Nova verificação amanhã (se ainda dentro da janela de novembro)."
           else

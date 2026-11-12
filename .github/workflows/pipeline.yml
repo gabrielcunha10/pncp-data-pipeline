@@ -12,6 +12,7 @@ on:
     paths:
       - 'download_pncp.py'
       - 'pncp_etl.py'
+      - 'test_pipeline.py'
       - 'requirements.txt'
       - '.github/workflows/**'
 
@@ -40,15 +41,19 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: 1. Executar Extração da API (download_pncp.py)
+      - name: 1. Executar Extração da API via Prefect (download_pncp.py)
         run: |
           python download_pncp.py
 
-      - name: 2. Executar Transformação e Limpeza (pncp_etl.py)
+      - name: 2. Executar Transformação e Limpeza via Prefect (pncp_etl.py)
         run: |
           python pncp_etl.py
 
-      - name: 3. Commitar e Enviar CSV Diretamente para o Repositório (Sem ZIP)
+      - name: 3. Executar Testes e Validação de Qualidade de Dados (Pytest)
+        run: |
+          pytest -v
+
+      - name: 4. Commitar e Enviar CSV Diretamente para o Repositório (Sem ZIP)
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
@@ -60,7 +65,7 @@ jobs:
             git push
           fi
 
-      - name: 4. Gerar Resumo da Execução no GitHub
+      - name: 5. Gerar Resumo da Execução no GitHub
         if: always()
         run: |
           echo "## Resumo da Execução do Pipeline PNCP" >> $GITHUB_STEP_SUMMARY
