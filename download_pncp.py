@@ -1,10 +1,42 @@
 import os
 import json
 import time
+import logging
+from logging.handlers import RotatingFileHandler
 from datetime import datetime, timedelta
 from typing import Optional
 import requests
+from prefect import flow, task
 
+
+def obter_logger(nome: str = "download_pncp") -> logging.Logger:
+    os.makedirs("logs", exist_ok=True)
+    logger = logging.getLogger(nome)
+    if not logger.handlers:
+        logger.setLevel(logging.INFO)
+        fmt = logging.Formatter(
+            "%(asctime)s | %(levelname)-8s | %(name)-15s | %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S"
+        )
+        fh = RotatingFileHandler(
+            os.path.join("logs", "pipeline.log"),
+            maxBytes=5 * 1024 * 1024,
+            backupCount=3,
+            encoding="utf-8"
+        )
+        fh.setFormatter(fmt)
+        sh = logging.StreamHandler()
+        sh.setFormatter(fmt)
+        logger.addHandler(fh)
+        logger.addHandler(sh)
+        logger.propagate = False
+    return logger
+
+
+logger = obter_logger()
+
+
+@task(name="Extrair Editais API PNCP", retries=2, retry_delay_seconds=5, log_prints=True)
 def baixar_dados_brutos(
     ufs=("PB", "PE"),
     data_final: Optional[str] = None,
@@ -41,11 +73,11 @@ def baixar_dados_brutos(
         "Accept": "application/json"
     })
 
-    print("=" * 70)
-    print("   PNCP - EXTRAÇÃO INCREMENTAL E IDEMPOTENTE DA API")
-    print(f"   UFs: {', '.join(ufs)} | Status: Recebendo Proposta")
-    print(f"   Registros já existentes em cache: {qtd_antes}")
-    print("=" * 70)
+    logger.info("=" * 70)
+    logger.info("   PNCP - EXTRAÇÃO INCREMENTAL E IDEMPOTENTE DA API")
+    logger.info(f"   UFs: {', '.join(ufs)} | Status: Recebendo Proposta")
+    logger.info(f"   Registros já existentes em cache: {qtd_antes}")
+    logger.info("=" * 70)
 
     novos_extraidos = 0
     atualizados_extraidos = 0
@@ -56,7 +88,7 @@ def baixar_dados_brutos(
         total_paginas = 1
         total_uf = 0
 
-        print(f"\nBaixando dados da UF: {uf}...")
+        logger.info(f"Baixando dados da UF: {uf}...")
 
         while pagina <= total_paginas:
             url = (
@@ -72,7 +104,7 @@ def baixar_dados_brutos(
                     resp = session.get(url, timeout=30)
                     if resp.status_code == 429:
                         espera = min(3.0 * (2 ** (tentativa - 1)), 30.0)
-                        print(f"   [Rate Limit 429] Aguardando {espera:.1f}s antes de tentar novamente ({tentativa}/{max_tentativas})...")
+                        logger.warning(f"[Rate Limit 429] Aguardando {espera:.1f}s antes de tentar novamente ({tentativa}/{max_tentativas})...")
                         time.sleep(espera)
                         continue
                     resp.raise_for_status()
@@ -81,12 +113,12 @@ def baixar_dados_brutos(
                 except Exception as e:
                     espera = min(2.0 * tentativa, 20.0)
                     if tentativa == max_tentativas:
-                        print(f"   [Erro] Falha ao consultar página {pagina} de {uf}: {e}")
+                        logger.error(f"Falha ao consultar página {pagina} de {uf}: {e}")
                     else:
                         time.sleep(espera)
 
             if not data:
-                print(f"   [Aviso] Interrompendo coleta de {uf} na página {pagina}.")
+                logger.warning(f"Interrompendo coleta de {uf} na página {pagina}.")
                 break
 
             total_paginas = data.get("totalPaginas", 1)
@@ -103,18 +135,25 @@ def baixar_dados_brutos(
                     itens_por_id[chave] = item
                 total_uf += 1
 
-            print(f"   [{uf}] Página {pagina}/{total_paginas} baixada ({total_uf} itens lidos)")
+            logger.info(f"[{uf}] Página {pagina}/{total_paginas} baixada ({total_uf} itens lidos)")
             pagina += 1
 
     lista_consolidada = list(itens_por_id.values())
     with open(output_json, "w", encoding="utf-8") as f:
         json.dump(lista_consolidada, f, ensure_ascii=False, indent=2)
 
-    print("\n" + "=" * 70)
-    print("   Extração Incremental Concluída!")
-    print(f"   - Novos editais inéditos adicionados: {novos_extraidos}")
-    print(f"   - Editais existentes sincronizados:   {atualizados_extraidos}")
-    print(f"   - Total único consolidado no JSON:    {len(lista_consolidada)}")
-    print("=" * 70)
+    logger.info("=" * 70)
+    logger.info("   Extração Incremental Concluída!")
+    logger.info(f"   - Novos editais inéditos adicionados: {novos_extraidos}")
+    logger.info(f"   - Editais existentes sincronizados:   {atualizados_extraidos}")
+    logger.info(f"   - Total único consolidado no JSON:    {len(lista_consolidada)}")
+    logger.info("=" * 70)
 
-baixar_dados_brutos()
+
+@flow(name="Flow 1 - Extração Incremental PNCP", log_prints=True)
+def flow_extracao_pncp():
+    baixar_dados_brutos()
+
+
+if __name__ == "__main__":
+    flow_extracao_pncp()

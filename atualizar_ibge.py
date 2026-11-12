@@ -1,7 +1,37 @@
 import os
 import csv
+import logging
+from logging.handlers import RotatingFileHandler
 from datetime import datetime
 import requests
+from prefect import flow, task
+
+
+def obter_logger(nome: str = "atualizar_ibge") -> logging.Logger:
+    os.makedirs("logs", exist_ok=True)
+    logger = logging.getLogger(nome)
+    if not logger.handlers:
+        logger.setLevel(logging.INFO)
+        fmt = logging.Formatter(
+            "%(asctime)s | %(levelname)-8s | %(name)-15s | %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S"
+        )
+        fh = RotatingFileHandler(
+            os.path.join("logs", "pipeline.log"),
+            maxBytes=5 * 1024 * 1024,
+            backupCount=3,
+            encoding="utf-8"
+        )
+        fh.setFormatter(fmt)
+        sh = logging.StreamHandler()
+        sh.setFormatter(fmt)
+        logger.addHandler(fh)
+        logger.addHandler(sh)
+        logger.propagate = False
+    return logger
+
+
+logger = obter_logger()
 
 METADATA_UFS = {
     "25": {"UF": "PB", "Nome_Estado": "Paraíba", "Regiao": "Nordeste", "Capital": "João Pessoa"},
@@ -20,6 +50,7 @@ CRESCIMENTO_REAL_CONHECIDO = {
     ("PE", 2023): 2.4,
 }
 
+@task(name="Atualizar PIB e População Estadual (SIDRA)", retries=2, retry_delay_seconds=5, log_prints=True)
 def atualizar_dados_ibge_ufs(
     ano_inicial: int = 2020,
     output_csv: str = os.path.join("data", "dados_ibge_ufs.csv")
@@ -35,10 +66,10 @@ def atualizar_dados_ibge_ufs(
     os.makedirs(os.path.dirname(os.path.abspath(output_csv)), exist_ok=True)
     ano_alvo = datetime.now().year - 2
 
-    print("=" * 70)
-    print("   IBGE SIDRA API - ATUALIZAÇÃO ANUAL DE PIB E POPULAÇÃO")
-    print(f"   UFs: PB, PE | Série: {ano_inicial} até {ano_alvo} (Ano-Alvo da Edição Atual)")
-    print("=" * 70)
+    logger.info("=" * 70)
+    logger.info("   IBGE SIDRA API - ATUALIZAÇÃO ANUAL DE PIB E POPULAÇÃO (UFs)")
+    logger.info(f"   UFs: PB, PE | Série: {ano_inicial} até {ano_alvo} (Ano-Alvo da Edição Atual)")
+    logger.info("=" * 70)
 
     # Verifica se o ano-alvo já foi gravado anteriormente no CSV para evitar requisições desnecessárias
     anos_ja_salvos = set()
@@ -47,9 +78,8 @@ def atualizar_dados_ibge_ufs(
             reader = csv.DictReader(f, delimiter=";")
             anos_ja_salvos = {int(r["Ano_PIB"]) for r in reader if str(r.get("Ano_PIB", "")).isdigit()}
         if ano_alvo in anos_ja_salvos:
-            print(f"\n[OK] O PIB do ano-alvo {ano_alvo} já está salvo em '{output_csv}'.")
-            print("Nenhuma nova consulta necessária para UFs até o próximo ciclo anual.")
-            print("=" * 70)
+            logger.info(f"[OK] O PIB do ano-alvo {ano_alvo} já está salvo em '{output_csv}'.")
+            logger.info("Nenhuma nova consulta necessária para UFs até o próximo ciclo anual.")
             return
 
     session = requests.Session()
@@ -85,7 +115,7 @@ def atualizar_dados_ibge_ufs(
     url_pib = "https://apisidra.ibge.gov.br/values/t/5938/n3/25,26/v/37/p/all"
     resp_pib = session.get(url_pib, timeout=20)
     if resp_pib.status_code != 200:
-        print(f"[ERRO] Falha ao consultar Tabela 5938 do IBGE para UFs (HTTP {resp_pib.status_code}).")
+        logger.error(f"Falha ao consultar Tabela 5938 do IBGE para UFs (HTTP {resp_pib.status_code}).")
         return
 
     pib_por_uf_ano = {}
@@ -102,18 +132,17 @@ def atualizar_dados_ibge_ufs(
                 anos_encontrados.add(ano)
 
     ultimo_ano_ibge = max(anos_encontrados) if anos_encontrados else None
-    print(f"\nAnos de UFs encontrados na API SIDRA: {sorted(anos_encontrados)}")
+    logger.info(f"Anos de UFs encontrados na API SIDRA: {sorted(anos_encontrados)}")
 
     if ano_alvo in anos_encontrados:
-        print(f"[SUCESSO] O PIB estadual de {ano_alvo} FOI PUBLICADO pelo IBGE e será gravado agora!")
+        logger.info(f"[SUCESSO] O PIB estadual de {ano_alvo} FOI PUBLICADO pelo IBGE e será gravado agora!")
     else:
-        print(
+        logger.warning(
             f"[RETRY DIÁRIO] O PIB estadual de {ano_alvo} ainda não foi liberado na API do IBGE "
             f"(último ano disponível: {ultimo_ano_ibge}). Nova tentativa será feita amanhã."
         )
         if anos_encontrados and anos_encontrados.issubset(anos_ja_salvos):
-            print("Todos os anos de UFs retornados já constam no CSV. Mantido sem alterações.")
-            print("=" * 70)
+            logger.info("Todos os anos de UFs retornados já constam no CSV. Mantido sem alterações.")
             return
 
     # 4. Montar linhas ordenadas por UF e Ano (decrescente)
@@ -159,10 +188,11 @@ def atualizar_dados_ibge_ufs(
             writer.writeheader()
             writer.writerows(linhas_csv)
 
-        print(f"\nTabela '{output_csv}' verificada/atualizada com {len(linhas_csv)} registros.")
-        print("=" * 70)
+        logger.info(f"Tabela '{output_csv}' verificada/atualizada com {len(linhas_csv)} registros.")
+        logger.info("=" * 70)
 
 
+@task(name="Atualizar PIB e População Municipal (SIDRA)", retries=2, retry_delay_seconds=5, log_prints=True)
 def atualizar_dados_ibge_municipios(
     ano_inicial: int = 2020,
     output_csv: str = os.path.join("data", "dados_ibge_municipios.csv")
@@ -177,10 +207,10 @@ def atualizar_dados_ibge_municipios(
     os.makedirs(os.path.dirname(os.path.abspath(output_csv)), exist_ok=True)
     ano_alvo = datetime.now().year - 2
 
-    print("=" * 70)
-    print("   IBGE SIDRA API - ATUALIZAÇÃO ANUAL DE PIB E POPULAÇÃO (MUNICÍPIOS)")
-    print(f"   Municípios: PB e PE | Série: {ano_inicial} até {ano_alvo}")
-    print("=" * 70)
+    logger.info("=" * 70)
+    logger.info("   IBGE SIDRA API - ATUALIZAÇÃO ANUAL DE PIB E POPULAÇÃO (MUNICÍPIOS)")
+    logger.info(f"   Municípios: PB e PE | Série: {ano_inicial} até {ano_alvo}")
+    logger.info("=" * 70)
 
     anos_ja_salvos = set()
     if os.path.exists(output_csv):
@@ -188,15 +218,14 @@ def atualizar_dados_ibge_municipios(
             reader = csv.DictReader(f, delimiter=";")
             anos_ja_salvos = {int(r["Ano_PIB"]) for r in reader if str(r.get("Ano_PIB", "")).isdigit()}
         if ano_alvo in anos_ja_salvos:
-            print(f"\n[OK] O PIB municipal de {ano_alvo} já está salvo em '{output_csv}'.")
-            print("Nenhuma nova consulta necessária para Municípios até o próximo ciclo anual.")
-            print("=" * 70)
+            logger.info(f"[OK] O PIB municipal de {ano_alvo} já está salvo em '{output_csv}'.")
+            logger.info("Nenhuma nova consulta necessária para Municípios até o próximo ciclo anual.")
             return
 
     session = requests.Session()
 
     # 1. População Censo 2022 por Município (Tabela 4709)
-    print("\n[1/3] Consultando População do Censo Demográfico 2022 (Tabela 4709)...")
+    logger.info("[1/3] Consultando População do Censo Demográfico 2022 (Tabela 4709)...")
     pop_mun_ano = {}
     url_censo = "https://apisidra.ibge.gov.br/values/t/4709/n6/in%20n3%2025,26/v/93/p/2022"
     resp_censo = session.get(url_censo, timeout=30)
@@ -210,7 +239,7 @@ def atualizar_dados_ibge_municipios(
                 pop_mun_ano[(cod_ibge, 2023)] = pop_val
 
     # 2. População Estimada Anual por Município (Tabela 6579)
-    print("[2/3] Consultando Estimativas Anuais de População (Tabela 6579)...")
+    logger.info("[2/3] Consultando Estimativas Anuais de População (Tabela 6579)...")
     url_pop = "https://apisidra.ibge.gov.br/values/t/6579/n6/in%20n3%2025,26/v/9324/p/all"
     resp_pop = session.get(url_pop, timeout=30)
     if resp_pop.status_code == 200:
@@ -224,11 +253,11 @@ def atualizar_dados_ibge_municipios(
                     pop_mun_ano[(cod_ibge, ano)] = int(val)
 
     # 3. PIB Municipal a Preços Correntes em Mil Reais (Tabela 5938)
-    print("[3/3] Consultando PIB Municipal a Preços Correntes (Tabela 5938)...")
+    logger.info("[3/3] Consultando PIB Municipal a Preços Correntes (Tabela 5938)...")
     url_pib = "https://apisidra.ibge.gov.br/values/t/5938/n6/in%20n3%2025,26/v/37/p/all"
     resp_pib = session.get(url_pib, timeout=40)
     if resp_pib.status_code != 200:
-        print(f"[ERRO] Falha ao consultar Tabela 5938 de municípios (HTTP {resp_pib.status_code}).")
+        logger.error(f"Falha ao consultar Tabela 5938 de municípios (HTTP {resp_pib.status_code}).")
         return
 
     dados_pib = resp_pib.json()[1:]
@@ -292,8 +321,7 @@ def atualizar_dados_ibge_municipios(
         })
 
     if ano_alvo not in anos_encontrados and anos_encontrados and anos_encontrados.issubset(anos_ja_salvos):
-        print("Todos os anos de Municípios retornados já constam no CSV. Mantido sem alterações.")
-        print("=" * 70)
+        logger.info("Todos os anos de Municípios retornados já constam no CSV. Mantido sem alterações.")
         return
 
     # Ordenar por UF, Nome do Município e Ano (decrescente)
@@ -306,11 +334,12 @@ def atualizar_dados_ibge_municipios(
             writer.writeheader()
             writer.writerows(linhas_csv)
 
-        print(f"\n[SUCESSO] Tabela '{output_csv}' gravada com {len(linhas_csv)} registros municipais.")
-        print(f"Anos municipais processados: {sorted(anos_encontrados)}")
-        print("=" * 70)
+        logger.info(f"[SUCESSO] Tabela '{output_csv}' gravada com {len(linhas_csv)} registros municipais.")
+        logger.info(f"Anos municipais processados: {sorted(anos_encontrados)}")
+        logger.info("=" * 70)
 
 
+@flow(name="Flow IBGE - Atualização Socioeconômica SIDRA", log_prints=True)
 def atualizar_tudo():
     atualizar_dados_ibge_ufs()
     atualizar_dados_ibge_municipios()

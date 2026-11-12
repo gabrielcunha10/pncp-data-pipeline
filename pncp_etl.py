@@ -2,10 +2,40 @@ import os
 import json
 import csv
 import re
+import logging
+from logging.handlers import RotatingFileHandler
 import unicodedata
 from datetime import datetime
 from typing import Any, Optional, Tuple
 from dateutil import parser as date_parser
+from prefect import flow, task
+
+
+def obter_logger(nome: str = "pncp_etl") -> logging.Logger:
+    os.makedirs("logs", exist_ok=True)
+    logger = logging.getLogger(nome)
+    if not logger.handlers:
+        logger.setLevel(logging.INFO)
+        fmt = logging.Formatter(
+            "%(asctime)s | %(levelname)-8s | %(name)-15s | %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S"
+        )
+        fh = RotatingFileHandler(
+            os.path.join("logs", "pipeline.log"),
+            maxBytes=5 * 1024 * 1024,
+            backupCount=3,
+            encoding="utf-8"
+        )
+        fh.setFormatter(fmt)
+        sh = logging.StreamHandler()
+        sh.setFormatter(fmt)
+        logger.addHandler(fh)
+        logger.addHandler(sh)
+        logger.propagate = False
+    return logger
+
+
+logger = obter_logger()
 
 def remover_acentos(texto: str) -> str:
     if not texto:
@@ -52,66 +82,60 @@ def format_currency(val: Any) -> str:
     except Exception:
         return str(val)
 
+# 1ª Prioridade: O que está sendo adquirido (Item, Serviço ou Insumo específico)
+_REGRAS_SETOR_ITEM = [
+    ("Obras e Infraestrutura", r"\b(obra|paviment|asfalt|reforma|constru|engenharia|drenagem|calcamento|edifica|ponte|praca|iluminacao|luminaria|luz publica|urbanizacao|saneamento|terraplanagem|postes|materiais eletricos|materiais hidraulicos|pre-moldados|cimento|brita|granito)"),
+    ("Informática (TI)", r"\b(informatica|software|computador|computadores|notebook|notebooks|tecnologia da informacao|ti\b|internet|fibra optica|licenca de uso|licenciamento|datacenter|hardware|sistema informatizado|sistema de gestao|nuvem|cftv|biometrico|ged|impressora|impressoras|impressao corporativa|rede movel|voz e dados|telecomunicac)\b"),
+    ("Transporte, Frota e Combustíveis", r"\b(transporte|veiculo|combustivel|combustiveis|frota|onibus|gasolina|diesel|etanol|ambulanc|locacao de veiculo|pneu|automovel|caminhao|caminhoes|carroceria|passagens aereas|agenciamento de passagens|lubrificante|servicos mecanicos)"),
+    ("Saúde", r"\b(medic|remedio|farmac|enferm|odontol|vacin|leito|cirurg|laborat|exame|biomedic|fisioterap|psicolog|nutricion|seringa|dieta enteral|dietas enterais|formula lactea|formulas lacteas|hemodialise|ortoped|oftalmol|oxigenio medicinal|insumos hospitalares|material medico)"),
+    ("Educação", r"\b(merenda|pedagog|didatico|livro|fardamento|kit escolar|kits escolares)"),
+    ("Segurança Pública e Vigilância", r"\b(seguranca|vigilancia|vigia|policia|militar|bombeiro|bombeiros|guarda-vidas|guarda municipal|defesa social|armada|desarmada|extintor|extintores|incendio|cjm|penitenciar|prisional|delegacia|drone|aeronave|aeronaves)"),
+    ("Cultura, Esporte e Eventos", r"\b(cultura|cultural|culturais|artista|artistas|banda|bandas|musica|musical|musicais|musicos|show|shows|evento|eventos|festa|festividades|carnaval|sao joao|natalin|esporte|esportivo|esportivos|lazer|trofeu|trofeus|medalha|medalhas|playground|brinquedo|brinquedos|academia ao ar livre|academias ao ar livre|turismo|hospedagem|sonorizacao|palco)"),
+    ("Assistência Social e Cidadania", r"\b(cesta basica|cestas basicas|vulnerabilidade|kit natalidade|funerari|urnas|familias carentes|sem fome|doacao|oculos de grau)"),
+    ("Meio Ambiente, Agro e Serviços Urbanos", r"\b(meio ambiente|ambiental|residuo|residuos|aterro|coleta de lixo|limpeza urbana|poda|paisagismo|jardinagem|muda|mudas|arborea|bioma|caatinga|icmbio|desassoreamento|recursos hidricos|poco|pocos|agropecuar|agricultura|rural|embrapa|racao|racoes|animal|animais|caes e gatos|veterinar|matadouro|abatedouro|escavadeira|retroescavadeira|maquinas pesadas|trator)"),
+    ("Alimentação, Copa e Suprimentos", r"\b(generos alimenticios|alimentacao|alimento|alimentos|refeicao|refeicoes|marmitex|quentinha|quentinhas|almoco|almocos|buffet|coffee break|coquetel|lanches|salgados|padaria|padarias|panificados|paes|bolos|cafe|agua mineral|agua adicionada|agua para consumo|garrafoes|glp|gas liquefeito|gas de cozinha|botijao|utensilios de cozinha|utensilos de cozinha|copa|cantina|aves e pescados|carnes|hortifruti)"),
+    ("Mobiliário, Climatização e Estrutura Predial", r"\b(mobiliario|mobiliarios|cadeiras|mesas|armarios|ar-condicionado|ar condicionado|climatizacao|refrigeracao|eletrodomesticos|material permanente|materiais permanentes|persianas|lampadas|vidros|marcenaria|bens imoveis|instalacoes)"),
+    ("Limpeza, Conservação e Expediente", r"\b(limpeza|higiene|conservacao|papel a4|papel oficio|papel sulfite|materiais de expediente|material de expediente|almoxarifado|copos|descartaveis|lixeiras|tecidos|roupa)"),
+    ("Comunicação, Gráfica e Publicidade", r"\b(comunicacao|publicidade|marketing|servicos graficos|materiais graficos|sites e blogs|audio visual|audiovisual|divulgacao|publicacao de avisos|promocionais)"),
+]
+
+# 2ª Prioridade (Fallback): Palavras genéricas de secretaria/órgão/local quando o item é genérico
+_REGRAS_SETOR_DESTINO = [
+    ("Saúde", r"\b(saude|hospit|clinic|upa|fms|sus|samu|ubs|caps)"),
+    ("Educação", r"\b(educa|escol|colegio|ensino|creche|aluno|profess|fnde|universidad|estudant)"),
+    ("Assistência Social e Cidadania", r"\b(assistencia social|desenvolvimento social|cras|creas)"),
+]
+
+
+def _buscar_regras(texto: str, regras: list) -> Optional[str]:
+    texto_norm = remover_acentos(texto)
+    for setor, padrao in regras:
+        if re.search(padrao, texto_norm):
+            return setor
+    return None
+
+
 def classificar_setor(objeto: str, unidade: str = "", orgao: str = "") -> str:
     """
-    Classifica nas áreas temáticas divididas por tipo de demanda e atuação pública.
-    Evita falsos positivos como 'Sistema de Registro de Preços' ou 'Rede Municipal'.
+    Classifica nas áreas temáticas priorizando o que está sendo adquirido (objeto).
+    Palavras genéricas de secretaria/local (ex: 'Secretaria de Educação', 'Hospital')
+    só são usadas como fallback quando o objeto não especifica o item/serviço.
     """
-    texto = remover_acentos(f"{objeto} {unidade} {orgao}")
+    # 1. Verifica o item/serviço específico no Objeto
+    setor_item = _buscar_regras(objeto, _REGRAS_SETOR_ITEM)
+    if setor_item:
+        return setor_item
 
-    # 1. Saúde
-    if re.search(r"\b(saude|medic|remedio|hospit|farmac|clinic|enferm|upa|fms|sus|samu|ubs|caps|odontol|vacin|leito|cirurg|laborat|exame|biomedic|fisioterap|psicolog|nutricion|seringa|dieta enteral|dietas enterais|formula lactea|formulas lacteas|hemodialise|ortoped|oftalmol|ambulanc)", texto):
-        return "Saúde"
+    # 2. Fallback: verifica menção de destino/pasta no Objeto ou na Unidade/Órgão
+    setor_destino = _buscar_regras(f"{objeto} {unidade} {orgao}", _REGRAS_SETOR_DESTINO)
+    if setor_destino:
+        return setor_destino
 
-    # 2. Educação
-    if re.search(r"\b(educa|escol|colegio|ensino|creche|merenda|pedagog|aluno|profess|didatico|fnde|livro|fardamento|universidad|estudant)", texto):
-        return "Educação"
+    # 3. Fallback final: verifica se a Unidade/Órgão indica algum setor específico
+    setor_unidade = _buscar_regras(f"{unidade} {orgao}", _REGRAS_SETOR_ITEM)
+    if setor_unidade:
+        return setor_unidade
 
-    # 3. Obras e Infraestrutura
-    if re.search(r"\b(obra|paviment|asfalt|reforma|constru|engenharia|drenagem|calcamento|edifica|ponte|praca|iluminacao|luminaria|luz publica|urbanizacao|saneamento|terraplanagem|postes|materiais eletricos|materiais hidraulicos|pre-moldados|cimento|brita|granito)", texto):
-        return "Obras e Infraestrutura"
-
-    # 4. Transporte, Frota e Combustíveis
-    if re.search(r"\b(transporte|veiculo|combustivel|combustiveis|frota|onibus|gasolina|diesel|locacao de veiculo|pneu|automovel|caminhao|caminhoes|carroceria|passagens aereas|agenciamento de passagens|lubrificante|servicos mecanicos)", texto):
-        return "Transporte, Frota e Combustíveis"
-
-    # 5. Informática (TI)
-    if re.search(r"\b(informatica|software|computador|computadores|notebook|notebooks|tecnologia da informacao|ti\b|internet|fibra optica|licenca de uso|licenciamento|datacenter|hardware|sistema informatizado|sistema de gestao|nuvem|cftv|biometrico|ged|impressora|impressoras|impressao corporativa|rede movel|voz e dados|telecomunicac)\b", texto):
-        return "Informática (TI)"
-
-    # 6. Segurança Pública e Vigilância
-    if re.search(r"\b(seguranca|vigilancia|vigia|policia|militar|bombeiro|bombeiros|guarda-vidas|guarda municipal|defesa social|armada|desarmada|extintor|extintores|incendio|cjm|penitenciar|prisional|delegacia|drone|aeronave|aeronaves)", texto):
-        return "Segurança Pública e Vigilância"
-
-    # 7. Cultura, Esporte e Eventos
-    if re.search(r"\b(cultura|cultural|culturais|artista|artistas|banda|bandas|musica|musical|musicais|musicos|show|shows|evento|eventos|festa|festividades|carnaval|sao joao|natalin|esporte|esportivo|esportivos|lazer|trofeu|trofeus|medalha|medalhas|playground|brinquedo|brinquedos|academia ao ar livre|academias ao ar livre|turismo|hospedagem|sonorizacao|palco)", texto):
-        return "Cultura, Esporte e Eventos"
-
-    # 8. Assistência Social e Cidadania
-    if re.search(r"\b(assistencia social|desenvolvimento social|cesta basica|cestas basicas|vulnerabilidade|cras|creas|kit natalidade|funerari|urnas|familias carentes|sem fome|doacao|oculos de grau)", texto):
-        return "Assistência Social e Cidadania"
-
-    # 9. Meio Ambiente, Agro e Serviços Urbanos
-    if re.search(r"\b(meio ambiente|ambiental|residuo|residuos|aterro|coleta de lixo|limpeza urbana|poda|paisagismo|jardinagem|muda|mudas|arborea|bioma|caatinga|icmbio|desassoreamento|recursos hidricos|poco|pocos|agropecuar|agricultura|rural|embrapa|racao|racoes|animal|animais|caes e gatos|veterinar|matadouro|abatedouro|escavadeira|retroescavadeira|maquinas pesadas|trator)", texto):
-        return "Meio Ambiente, Agro e Serviços Urbanos"
-
-    # 10. Alimentação, Copa e Suprimentos
-    if re.search(r"\b(generos alimenticios|alimentacao|alimento|alimentos|refeicao|refeicoes|marmitex|quentinha|quentinhas|almoco|almocos|buffet|coffee break|coquetel|lanches|salgados|padaria|padarias|panificados|paes|bolos|cafe|agua mineral|agua adicionada|agua para consumo|garrafoes|glp|gas liquefeito|gas de cozinha|botijao|utensilios de cozinha|utensilos de cozinha|copa|cantina|aves e pescados|carnes|hortifruti)", texto):
-        return "Alimentação, Copa e Suprimentos"
-
-    # 11. Mobiliário, Climatização e Estrutura Predial
-    if re.search(r"\b(mobiliario|mobiliarios|cadeiras|mesas|armarios|ar-condicionado|ar condicionado|climatizacao|refrigeracao|eletrodomesticos|material permanente|materiais permanentes|persianas|lampadas|vidros|marcenaria|bens imoveis|instalacoes)", texto):
-        return "Mobiliário, Climatização e Estrutura Predial"
-
-    # 12. Limpeza, Conservação e Expediente
-    if re.search(r"\b(limpeza|higiene|conservacao|papel a4|papel oficio|papel sulfite|materiais de expediente|material de expediente|almoxarifado|copos|descartaveis|lixeiras|tecidos|roupa)", texto):
-        return "Limpeza, Conservação e Expediente"
-
-    # 13. Comunicação, Gráfica e Publicidade
-    if re.search(r"\b(comunicacao|publicidade|marketing|servicos graficos|materiais graficos|sites e blogs|audio visual|audiovisual|divulgacao|publicacao de avisos|promocionais)", texto):
-        return "Comunicação, Gráfica e Publicidade"
-
-    # 14. Gestão Financeira, Patrimonial e Administrativa
     return "Gestão Financeira, Patrimonial e Administrativa"
 
 def classificar_motivo_e_palavras_chave(objeto: str) -> Tuple[str, str]:
@@ -206,14 +230,31 @@ def status_valor_transparencia(valor: Any) -> str:
     except Exception:
         return "Não Informado / Sigiloso"
 
+def classificar_faixa_pib_per_capita(pib_per_capita: Any) -> str:
+    if pib_per_capita is None or pib_per_capita == "":
+        return "Não Informado"
+    try:
+        val = float(pib_per_capita)
+        if val <= 12500.0:
+            return "Até R$ 12,5 mil (Baixo)"
+        elif val <= 15000.0:
+            return "De R$ 12,5 mil a R$ 15 mil (Médio-Baixo)"
+        elif val <= 20000.0:
+            return "De R$ 15 mil a R$ 20 mil (Médio-Alto)"
+        else:
+            return "Acima de R$ 20 mil (Alto)"
+    except Exception:
+        return "Não Informado"
+
 def carregar_dados_ibge_municipios(
     caminho_csv: str = os.path.join("data", "dados_ibge_municipios.csv")
 ) -> dict:
     """
-    Carrega data/dados_ibge_municipios.csv e retorna um dicionário mapeando
-    (municipio_normalizado, uf) para os dados socioeconômicos mais recentes do IBGE.
+    Carrega data/dados_ibge_municipios.csv e retorna um dicionário mapeando tanto
+    o código IBGE de 7 dígitos quanto a tupla (municipio_normalizado, uf) para os
+    dados socioeconômicos mais recentes do IBGE.
     """
-    mapa = {}
+    mapa = {"por_codigo": {}, "por_nome": {}}
     if not os.path.exists(caminho_csv):
         return mapa
     try:
@@ -222,19 +263,36 @@ def carregar_dados_ibge_municipios(
             # Ordenar por ano para que a última iteração guarde o ano mais recente (ex: 2023)
             linhas = sorted(list(reader), key=lambda r: int(r.get("Ano_PIB", 0) or 0))
             for r in linhas:
+                cod_ibge = str(r.get("Codigo_Municipio_IBGE", "")).strip()
                 m_norm = remover_acentos(r.get("Municipio", ""))
                 uf = r.get("UF", "").strip().upper()
+                info = {
+                    "Codigo_IBGE": cod_ibge,
+                    "Populacao": r.get("Populacao", ""),
+                    "PIB_Reais": r.get("PIB_Reais", ""),
+                    "PIB_Formatado": r.get("PIB_Formatado", ""),
+                    "PIB_per_Capita_Reais": r.get("PIB_per_Capita_Reais", ""),
+                    "Faixa_PIB_per_Capita": classificar_faixa_pib_per_capita(r.get("PIB_per_Capita_Reais", ""))
+                }
+                if cod_ibge:
+                    mapa["por_codigo"][cod_ibge] = info
                 if m_norm and uf:
-                    mapa[(m_norm, uf)] = {
-                        "Codigo_IBGE": r.get("Codigo_Municipio_IBGE", ""),
-                        "Populacao": r.get("Populacao", ""),
-                        "PIB_Reais": r.get("PIB_Reais", ""),
-                        "PIB_Formatado": r.get("PIB_Formatado", ""),
-                        "PIB_per_Capita_Reais": r.get("PIB_per_Capita_Reais", "")
-                    }
+                    mapa["por_nome"][(m_norm, uf)] = info
     except Exception as e:
-        print(f"[AVISO] Não foi possível carregar dados IBGE de municípios: {e}")
+        logger.warning(f"Não foi possível carregar dados IBGE de municípios: {e}")
     return mapa
+
+def obter_dados_ibge(mapa_ibge: dict, codigo_ibge: Any, municipio: str, uf: str) -> dict:
+    """
+    Prioriza o cruzamento pelo código IBGE oficial (7 dígitos) vindo da API do PNCP
+    e utiliza o par (município normalizado, UF) como fallback.
+    """
+    cod_str = str(codigo_ibge or "").strip()
+    if cod_str and cod_str in mapa_ibge.get("por_codigo", {}):
+        return mapa_ibge["por_codigo"][cod_str]
+    m_norm = remover_acentos(municipio or "")
+    uf_norm = (uf or "").strip().upper()
+    return mapa_ibge.get("por_nome", {}).get((m_norm, uf_norm), {})
 
 def is_recebendo_proposta(item: dict, ref_dt: datetime) -> bool:
     situacao = str(item.get("situacaoCompraNome", "")).strip().lower()
@@ -256,6 +314,7 @@ def is_recebendo_proposta(item: dict, ref_dt: datetime) -> bool:
             pass
     return True
 
+@task(name="Transformar e Enriquecer Editais PNCP", log_prints=True)
 def executar_etl(
     input_json: str = os.path.join("data", "dados_brutos_pncp.json"),
     output_csv: str = os.path.join("data", "editais_pncp_PB_PE.csv")
@@ -268,16 +327,16 @@ def executar_etl(
     """
     os.makedirs(os.path.dirname(os.path.abspath(output_csv)), exist_ok=True)
 
-    print("=" * 70)
-    print("   PNCP - ETL INCREMENTAL E IDEMPOTENTE (UPSERT)")
-    print(f"   Origem: {input_json} -> Destino: {output_csv}")
-    print("=" * 70)
+    logger.info("=" * 70)
+    logger.info("   PNCP - ETL INCREMENTAL E IDEMPOTENTE (UPSERT)")
+    logger.info(f"   Origem: {input_json} -> Destino: {output_csv}")
+    logger.info("=" * 70)
 
     try:
         with open(input_json, "r", encoding="utf-8") as f:
             itens_brutos = json.load(f)
     except FileNotFoundError:
-        print(f"Erro: Arquivo '{input_json}' não encontrado. Execute o 'download_pncp.py' primeiro.")
+        logger.error(f"Arquivo '{input_json}' não encontrado. Execute o 'download_pncp.py' primeiro.")
         return
 
     # 1. Carregar base CSV já existente para evitar reprocessamento de editais inalterados
@@ -293,27 +352,46 @@ def executar_etl(
         except Exception:
             registros_por_id = {}
 
-    print(f"\nTotal de registros brutos lidos: {len(itens_brutos)}")
-    print(f"Total de editais já existentes no CSV: {len(registros_por_id)}")
+    logger.info(f"Total de registros brutos lidos: {len(itens_brutos)}")
+    logger.info(f"Total de editais já existentes no CSV: {len(registros_por_id)}")
 
     dados_ibge_mun = carregar_dados_ibge_municipios()
-    print(f"Total de municípios carregados da base do IBGE: {len(dados_ibge_mun)}")
+    logger.info(f"Total de municípios carregados da base do IBGE: {len(dados_ibge_mun.get('por_codigo', {}))}")
 
-    # Enriquecer registros já existentes que ainda não possuam as colunas do PIB municipal
+    # Enriquecer registros já existentes e atualizar classificação de Setor/Área se necessário
     enriquecidos_ibge = 0
     for chave, r in registros_por_id.items():
-        if "PIB do Município" not in r or not r.get("PIB do Município"):
-            m_norm = remover_acentos(r.get("Município", ""))
-            uf = r.get("UF", "").strip().upper()
-            ibge_info = dados_ibge_mun.get((m_norm, uf), {})
+        novo_setor = classificar_setor(
+            r.get("Objeto", ""),
+            r.get("Unidade Compradora", ""),
+            r.get("Órgão", "")
+        )
+        mudou_setor = r.get("Setor / Área") != novo_setor
+        if mudou_setor:
+            r["Setor / Área"] = novo_setor
+
+        if (
+            mudou_setor
+            or "PIB do Município" not in r or not r.get("PIB do Município")
+            or "Código IBGE do Município" not in r or not r.get("Código IBGE do Município")
+            or "Faixa de PIB per Capita" not in r or not r.get("Faixa de PIB per Capita")
+        ):
+            ibge_info = obter_dados_ibge(
+                dados_ibge_mun,
+                r.get("Código IBGE do Município", ""),
+                r.get("Município", ""),
+                r.get("UF", "")
+            )
+            r["Código IBGE do Município"] = ibge_info.get("Codigo_IBGE", "")
             r["População do Município"] = ibge_info.get("Populacao", "")
             r["PIB do Município"] = ibge_info.get("PIB_Formatado", "")
             r["PIB do Município Numérico"] = ibge_info.get("PIB_Reais", "")
             r["PIB per Capita Municipal"] = ibge_info.get("PIB_per_Capita_Reais", "")
+            r["Faixa de PIB per Capita"] = ibge_info.get("Faixa_PIB_per_Capita", "")
             enriquecidos_ibge += 1
 
     if enriquecidos_ibge > 0:
-        print(f"Editais existentes enriquecidos com PIB e População do IBGE: {enriquecidos_ibge}")
+        logger.info(f"Editais existentes enriquecidos com Código IBGE, PIB e Faixa de Renda: {enriquecidos_ibge}")
 
     now_dt = datetime.now()
     mantidos_sem_reprocessar = 0
@@ -361,7 +439,9 @@ def executar_etl(
         municipio = unidade.get("municipioNome", "")
         uf_sigla = unidade.get("ufSigla") or uf_consulta
         localidade = f"{municipio}/{uf_sigla}" if municipio else uf_sigla
-        ibge_info = dados_ibge_mun.get((remover_acentos(municipio), uf_sigla.strip().upper()), {})
+        codigo_ibge_api = unidade.get("codigoIbge")
+        ibge_info = obter_dados_ibge(dados_ibge_mun, codigo_ibge_api, municipio, uf_sigla)
+        cod_ibge_final = ibge_info.get("Codigo_IBGE") or (str(codigo_ibge_api).strip() if codigo_ibge_api else "")
 
         modalidade = item.get("modalidadeNome", "")
         modo_disputa = item.get("modoDisputaNome", "")
@@ -420,11 +500,13 @@ def executar_etl(
             "Unidade Compradora": unidade_str,
             "Localidade": localidade,
             "Município": municipio,
+            "Código IBGE do Município": cod_ibge_final,
             "É Capital": is_capital(municipio, uf_sigla),
             "População do Município": ibge_info.get("Populacao", ""),
             "PIB do Município": ibge_info.get("PIB_Formatado", ""),
             "PIB do Município Numérico": ibge_info.get("PIB_Reais", ""),
             "PIB per Capita Municipal": ibge_info.get("PIB_per_Capita_Reais", ""),
+            "Faixa de PIB per Capita": ibge_info.get("Faixa_PIB_per_Capita", ""),
             "Setor / Área": classificar_setor(objeto_limpo, unidade_nome, razao_social),
             "Motivo da Proposta": motivo_proposta,
             "Palavras-Chave do Objeto": palavras_chave,
@@ -466,11 +548,12 @@ def executar_etl(
                 "Situação", "Modalidade de Contratação", "Modo de Disputa", "Tipo de Compra",
                 "Amparo Legal", "SRP", "Fonte Orçamentária", "Órgão", "CNPJ do Órgão",
                 "Nível de Governo (Esfera)", "Poder", "Unidade Compradora", "Localidade",
-                "Município", "É Capital", "População do Município", "PIB do Município",
-                "PIB do Município Numérico", "PIB per Capita Municipal", "Setor / Área",
-                "Motivo da Proposta", "Palavras-Chave do Objeto", "Objeto",
-                "Valor Total Estimado", "Valor Estimado Numérico", "Status do Valor",
-                "Ano Publicação", "Ano/Mês Publicação", "Data de Divulgação PNCP",
+                "Município", "Código IBGE do Município", "É Capital", "População do Município",
+                "PIB do Município", "PIB do Município Numérico", "PIB per Capita Municipal",
+                "Faixa de PIB per Capita", "Setor / Área", "Motivo da Proposta",
+                "Palavras-Chave do Objeto", "Objeto", "Valor Total Estimado",
+                "Valor Estimado Numérico", "Status do Valor", "Ano Publicação",
+                "Ano/Mês Publicação", "Data de Divulgação PNCP",
                 "Data Início Recebimento Propostas", "Data Fim Recebimento Propostas",
                 "Última Atualização", "Link PNCP", "Link Sistema Origem"
             ]
@@ -479,16 +562,23 @@ def executar_etl(
                 writer.writeheader()
                 writer.writerows(linhas_finais)
 
-        print("\n" + "=" * 70)
-        print("   ETL Incremental Concluído!")
-        print(f"   - Editais mantidos (sem reprocessar): {mantidos_sem_reprocessar}")
-        print(f"   - Novos editais inseridos:            {novos_inseridos}")
-        print(f"   - Editais atualizados (retificados):  {atualizados}")
-        print(f"   - Editais revogados/suspensos remov.: {removidos_inativos}")
-        print(f"   - Total único consolidado no CSV:     {len(linhas_finais)}")
-        print(f"   Arquivo salvo: {output_csv}")
-        print("=" * 70)
+        logger.info("=" * 70)
+        logger.info("   ETL Incremental Concluído!")
+        logger.info(f"   - Editais mantidos (sem reprocessar): {mantidos_sem_reprocessar}")
+        logger.info(f"   - Novos editais inseridos:            {novos_inseridos}")
+        logger.info(f"   - Editais atualizados (retificados):  {atualizados}")
+        logger.info(f"   - Editais revogados/suspensos remov.: {removidos_inativos}")
+        logger.info(f"   - Total único consolidado no CSV:     {len(linhas_finais)}")
+        logger.info(f"   Arquivo salvo: {output_csv}")
+        logger.info("=" * 70)
     else:
-        print("\nNenhum registro aprovado no filtro.")
+        logger.warning("Nenhum registro aprovado no filtro.")
 
-executar_etl()
+
+@flow(name="Flow 2 - Transformação e Limpeza ETL PNCP", log_prints=True)
+def flow_etl_pncp():
+    executar_etl()
+
+
+if __name__ == "__main__":
+    flow_etl_pncp()
