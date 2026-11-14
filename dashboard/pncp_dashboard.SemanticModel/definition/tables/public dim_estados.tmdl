@@ -1,0 +1,94 @@
+table 'public dim_estados'
+	lineageTag: 48e7ba20-babe-4811-a24e-d8270f896eae
+
+	column uf
+		dataType: string
+		lineageTag: 3b0d53cd-e3ab-4e38-9103-c30947fe89c4
+		summarizeBy: none
+		sourceColumn: uf
+
+		annotation SummarizationSetBy = Automatic
+
+	column nome_estado
+		dataType: string
+		lineageTag: eff0720c-7e69-48b2-a8cd-1a0de044b4b0
+		summarizeBy: none
+		sourceColumn: nome_estado
+
+		annotation SummarizationSetBy = Automatic
+
+	column regiao
+		dataType: string
+		lineageTag: fb4418cc-00e1-4db0-af60-7438dc61c2cc
+		summarizeBy: none
+		sourceColumn: regiao
+
+		annotation SummarizationSetBy = Automatic
+
+	column capital
+		dataType: string
+		lineageTag: a328b586-a019-4a8a-aad4-a05d4ce6f12e
+		summarizeBy: none
+		sourceColumn: capital
+
+		annotation SummarizationSetBy = Automatic
+
+	column ano_pib
+		dataType: int64
+		formatString: 0
+		lineageTag: 94fb3748-f942-4b07-b0ba-16827c0f2312
+		summarizeBy: none
+		sourceColumn: ano_pib
+
+		annotation SummarizationSetBy = Automatic
+
+	column populacao
+		dataType: int64
+		formatString: 0
+		lineageTag: 01787354-361b-42e3-954f-3a7a3093e178
+		summarizeBy: none
+		sourceColumn: populacao
+
+		annotation SummarizationSetBy = Automatic
+
+	column pib_reais
+		dataType: double
+		lineageTag: e1e6151e-88ef-4a9e-90e1-ac01cf1fc274
+		summarizeBy: none
+		sourceColumn: pib_reais
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column pib_per_capita_reais
+		dataType: double
+		lineageTag: 130f8e7d-4822-43a2-bed4-fd3a4fdfdb18
+		summarizeBy: none
+		sourceColumn: pib_per_capita_reais
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column crescimento_real_anual_pct
+		dataType: double
+		lineageTag: ae61212d-4f3d-4309-b487-ea528263e587
+		summarizeBy: none
+		sourceColumn: crescimento_real_anual_pct
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition 'public dim_estados' = m
+		mode: import
+		source =
+				let
+				    Fonte = PostgreSQL.Database("ep-green-wildflower-bdjgrsve-pooler.c-8.us-east-2.aws.neon.tech", "neondb"),
+				    public_dim_estados = Fonte{[Schema="public",Item="dim_estados"]}[Data]
+				in
+				    public_dim_estados
+
+	annotation PBI_ResultType = Table
+

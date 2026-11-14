@@ -1,0 +1,38 @@
+relationship 66750813-8a5b-4656-a792-c4c6bba4e8d6
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'public fato_editais'.data_divulgacao
+	toColumn: LocalDateTable_a87fdfd2-38b7-46af-9c90-fa356f446907.Date
+
+relationship e9fc045f-338c-427a-ad6e-af36a2179c22
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'public fato_editais'.data_inicio_propostas
+	toColumn: LocalDateTable_f815c00e-3ad3-4d62-95d8-5bea0d85971f.Date
+
+relationship 800ffdb0-3962-4864-a7ae-c5439d60852c
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'public fato_editais'.data_fim_propostas
+	toColumn: LocalDateTable_01736e50-0056-4fd2-8a34-8952620df638.Date
+
+relationship dd16fce2-a837-4a90-ae98-74656792b3bc
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'public fato_editais'.ultima_atualizacao
+	toColumn: LocalDateTable_19361d2b-591a-42e4-84b0-ec8d8a5f5a6f.Date
+
+relationship 91a43e7a-446c-483d-8179-55abdd01d599
+	fromColumn: 'public dim_municipios'.uf
+	toColumn: 'public dim_estados'.uf
+
+	annotation PBI_IsFromSource = FS
+
+relationship 4c4cf97d-acee-45e4-87da-66c227d85459
+	fromColumn: 'public fato_editais'.codigo_ibge
+	toColumn: 'public dim_municipios'.codigo_ibge
+
+	annotation PBI_IsFromSource = FS
+
+relationship bf14e244-bce5-4961-b443-984e9cd4d319
+	fromColumn: 'public fato_editais'.cnpj_orgao
+	toColumn: 'public dim_orgaos'.cnpj_orgao
+
+	annotation PBI_IsFromSource = FS
+

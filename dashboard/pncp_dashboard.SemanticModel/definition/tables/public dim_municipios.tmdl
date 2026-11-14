@@ -1,0 +1,93 @@
+table 'public dim_municipios'
+	lineageTag: 3e6fe604-d2b5-407b-b4c3-35c9c1755ffa
+
+	column codigo_ibge
+		dataType: string
+		lineageTag: b48e5b16-2830-4425-8566-b40bf3efeff4
+		summarizeBy: none
+		sourceColumn: codigo_ibge
+
+		annotation SummarizationSetBy = Automatic
+
+	column uf
+		dataType: string
+		lineageTag: f060c4d8-b951-424e-97ce-9ef398e1a6c7
+		summarizeBy: none
+		sourceColumn: uf
+
+		annotation SummarizationSetBy = Automatic
+
+	column municipio
+		dataType: string
+		lineageTag: abc7f7ce-5a52-413f-8a63-124b84cd3608
+		summarizeBy: none
+		sourceColumn: municipio
+
+		annotation SummarizationSetBy = Automatic
+
+	column eh_capital
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: c13b64df-9c38-4ac0-8656-75e7c4a003d9
+		summarizeBy: none
+		sourceColumn: eh_capital
+
+		annotation SummarizationSetBy = Automatic
+
+	column ano_pib
+		dataType: int64
+		formatString: 0
+		lineageTag: 06119d61-4afe-4087-8778-3c889938e21e
+		summarizeBy: sum
+		sourceColumn: ano_pib
+
+		annotation SummarizationSetBy = Automatic
+
+	column populacao
+		dataType: int64
+		formatString: 0
+		lineageTag: de870934-6975-43b0-9fab-45cc9a0547e9
+		summarizeBy: sum
+		sourceColumn: populacao
+
+		annotation SummarizationSetBy = Automatic
+
+	column pib_reais
+		dataType: double
+		lineageTag: 2e15f45b-163c-4e77-89ab-2326022b38cd
+		summarizeBy: sum
+		sourceColumn: pib_reais
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column pib_per_capita_reais
+		dataType: double
+		lineageTag: 319eabb6-b719-4fe5-a851-93c5063d1486
+		summarizeBy: sum
+		sourceColumn: pib_per_capita_reais
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column faixa_pib_per_capita
+		dataType: string
+		lineageTag: f4e319da-0b99-4464-8c96-a078a4e127e9
+		summarizeBy: none
+		sourceColumn: faixa_pib_per_capita
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'public dim_municipios' = m
+		mode: import
+		source =
+				let
+				    Fonte = PostgreSQL.Database("ep-green-wildflower-bdjgrsve-pooler.c-8.us-east-2.aws.neon.tech", "neondb"),
+				    public_dim_municipios = Fonte{[Schema="public",Item="dim_municipios"]}[Data]
+				in
+				    public_dim_municipios
+
+	annotation PBI_ResultType = Table
+

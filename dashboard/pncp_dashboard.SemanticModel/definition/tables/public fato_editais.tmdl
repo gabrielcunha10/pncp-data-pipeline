@@ -1,0 +1,250 @@
+table 'public fato_editais'
+	lineageTag: bfa5113e-5b9e-4fda-98d3-110f4213dd37
+
+	column id_contratacao_pncp
+		dataType: string
+		lineageTag: 1ea3f479-6c49-4787-bd7c-202270714e43
+		summarizeBy: none
+		sourceColumn: id_contratacao_pncp
+
+		annotation SummarizationSetBy = Automatic
+
+	column codigo_ibge
+		dataType: string
+		lineageTag: 764c6bee-68b4-4f6e-b6a6-f16c5677b953
+		summarizeBy: none
+		sourceColumn: codigo_ibge
+
+		annotation SummarizationSetBy = Automatic
+
+	column cnpj_orgao
+		dataType: string
+		lineageTag: a284d518-01af-49c7-b438-dd637f3a0371
+		summarizeBy: none
+		sourceColumn: cnpj_orgao
+
+		annotation SummarizationSetBy = Automatic
+
+	column uf
+		dataType: string
+		lineageTag: 965ffc9c-b125-4f5c-bd3e-7bc2867acd72
+		summarizeBy: none
+		sourceColumn: uf
+
+		annotation SummarizationSetBy = Automatic
+
+	column numero_edital
+		dataType: string
+		lineageTag: 6a106100-d25e-4e79-8f36-1b0de71cf79f
+		summarizeBy: none
+		sourceColumn: numero_edital
+
+		annotation SummarizationSetBy = Automatic
+
+	column tipo_instrumento
+		dataType: string
+		lineageTag: dadc744a-f148-49f1-bc1b-fc431a4d5d27
+		summarizeBy: none
+		sourceColumn: tipo_instrumento
+
+		annotation SummarizationSetBy = Automatic
+
+	column situacao
+		dataType: string
+		lineageTag: 04493f86-914c-4f84-9922-3bf99e19bd49
+		summarizeBy: none
+		sourceColumn: situacao
+
+		annotation SummarizationSetBy = Automatic
+
+	column modalidade_contratacao
+		dataType: string
+		lineageTag: d7e03998-1057-47e2-b1ac-502b4ba420cf
+		summarizeBy: none
+		sourceColumn: modalidade_contratacao
+
+		annotation SummarizationSetBy = Automatic
+
+	column modo_disputa
+		dataType: string
+		lineageTag: 37cb3a85-ce98-4322-ac06-e298b6d5d947
+		summarizeBy: none
+		sourceColumn: modo_disputa
+
+		annotation SummarizationSetBy = Automatic
+
+	column tipo_compra
+		dataType: string
+		lineageTag: c9053932-5b45-4c4f-b240-4e7429574219
+		summarizeBy: none
+		sourceColumn: tipo_compra
+
+		annotation SummarizationSetBy = Automatic
+
+	column srp
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 1cc223a1-02ff-4711-a7eb-e24f49eff71c
+		summarizeBy: none
+		sourceColumn: srp
+
+		annotation SummarizationSetBy = Automatic
+
+	column unidade_compradora
+		dataType: string
+		lineageTag: b164f9f3-931e-4849-8484-51252e33885c
+		summarizeBy: none
+		sourceColumn: unidade_compradora
+
+		annotation SummarizationSetBy = Automatic
+
+	column setor_area
+		dataType: string
+		lineageTag: 43a5abfc-fec9-407f-8b14-f078fc8f1afa
+		summarizeBy: none
+		sourceColumn: setor_area
+
+		annotation SummarizationSetBy = Automatic
+
+	column motivo_proposta
+		dataType: string
+		lineageTag: a53aa71d-f234-4a4f-83a4-3e4ad35f69e5
+		summarizeBy: none
+		sourceColumn: motivo_proposta
+
+		annotation SummarizationSetBy = Automatic
+
+	column palavras_chave
+		dataType: string
+		lineageTag: 8f2d60cb-6046-4cae-8586-02593a0c2160
+		summarizeBy: none
+		sourceColumn: palavras_chave
+
+		annotation SummarizationSetBy = Automatic
+
+	column objeto
+		dataType: string
+		lineageTag: b60ef5ad-b488-4e29-8218-779a9487bddb
+		summarizeBy: none
+		sourceColumn: objeto
+
+		annotation SummarizationSetBy = Automatic
+
+	column valor_estimado
+		dataType: double
+		lineageTag: 82b0a176-7465-456d-bb44-b52f7f14ef0c
+		summarizeBy: sum
+		sourceColumn: valor_estimado
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column status_valor
+		dataType: string
+		lineageTag: 73230522-3bf1-4dda-ae5f-0c52008dadc6
+		summarizeBy: none
+		sourceColumn: status_valor
+
+		annotation SummarizationSetBy = Automatic
+
+	column ano_publicacao
+		dataType: int64
+		formatString: 0
+		lineageTag: 2c96e692-5f1d-45eb-bd77-fc7e91316b2c
+		summarizeBy: sum
+		sourceColumn: ano_publicacao
+
+		annotation SummarizationSetBy = Automatic
+
+	column ano_mes_publicacao
+		dataType: string
+		lineageTag: 2926c24c-faec-47ad-b5a6-225489262cc5
+		summarizeBy: none
+		sourceColumn: ano_mes_publicacao
+
+		annotation SummarizationSetBy = Automatic
+
+	column data_divulgacao
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 80062d95-8e70-4b9b-9fa4-1d1577042243
+		summarizeBy: none
+		sourceColumn: data_divulgacao
+
+		variation Variação
+			isDefault
+			relationship: 66750813-8a5b-4656-a792-c4c6bba4e8d6
+			defaultHierarchy: LocalDateTable_a87fdfd2-38b7-46af-9c90-fa356f446907.'Hierarquia de datas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column data_inicio_propostas
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 36228388-3102-49e1-9baa-631153af2336
+		summarizeBy: none
+		sourceColumn: data_inicio_propostas
+
+		variation Variação
+			isDefault
+			relationship: e9fc045f-338c-427a-ad6e-af36a2179c22
+			defaultHierarchy: LocalDateTable_f815c00e-3ad3-4d62-95d8-5bea0d85971f.'Hierarquia de datas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column data_fim_propostas
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: a1976107-c9bc-44b8-9b72-d9efdbbede1e
+		summarizeBy: none
+		sourceColumn: data_fim_propostas
+
+		variation Variação
+			isDefault
+			relationship: 800ffdb0-3962-4864-a7ae-c5439d60852c
+			defaultHierarchy: LocalDateTable_01736e50-0056-4fd2-8a34-8952620df638.'Hierarquia de datas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column ultima_atualizacao
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 4a290ab9-7323-406c-b174-64e7a9211d6c
+		summarizeBy: none
+		sourceColumn: ultima_atualizacao
+
+		variation Variação
+			isDefault
+			relationship: dd16fce2-a837-4a90-ae98-74656792b3bc
+			defaultHierarchy: LocalDateTable_19361d2b-591a-42e4-84b0-ec8d8a5f5a6f.'Hierarquia de datas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column link_pncp
+		dataType: string
+		lineageTag: 837765e9-08d4-4490-9fcb-7cf73d0c1396
+		summarizeBy: none
+		sourceColumn: link_pncp
+
+		annotation SummarizationSetBy = Automatic
+
+	column link_sistema_origem
+		dataType: string
+		lineageTag: 73121981-903a-4baf-b999-80b097b2c028
+		summarizeBy: none
+		sourceColumn: link_sistema_origem
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'public fato_editais' = m
+		mode: import
+		source =
+				let
+				    Fonte = PostgreSQL.Database("ep-green-wildflower-bdjgrsve-pooler.c-8.us-east-2.aws.neon.tech", "neondb"),
+				    public_fato_editais = Fonte{[Schema="public",Item="fato_editais"]}[Data]
+				in
+				    public_fato_editais
+
+	annotation PBI_ResultType = Table
+

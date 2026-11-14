@@ -1,0 +1,46 @@
+table 'public dim_orgaos'
+	lineageTag: 7ff18fa9-2a96-4c99-8a9c-da2974d4c74c
+
+	column cnpj_orgao
+		dataType: string
+		lineageTag: a70d8d98-257d-4d54-a178-8e6fa66bdf47
+		summarizeBy: none
+		sourceColumn: cnpj_orgao
+
+		annotation SummarizationSetBy = Automatic
+
+	column nome_orgao
+		dataType: string
+		lineageTag: 3a9e60d9-d341-4fe4-967c-9ec026db34f4
+		summarizeBy: none
+		sourceColumn: nome_orgao
+
+		annotation SummarizationSetBy = Automatic
+
+	column esfera
+		dataType: string
+		lineageTag: a6210f57-1f54-4ee1-bb25-a834a9114e27
+		summarizeBy: none
+		sourceColumn: esfera
+
+		annotation SummarizationSetBy = Automatic
+
+	column poder
+		dataType: string
+		lineageTag: 733beaf5-316d-45b6-b1b0-a1a645b3a2be
+		summarizeBy: none
+		sourceColumn: poder
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'public dim_orgaos' = m
+		mode: import
+		source =
+				let
+				    Fonte = PostgreSQL.Database("ep-green-wildflower-bdjgrsve-pooler.c-8.us-east-2.aws.neon.tech", "neondb"),
+				    public_dim_orgaos = Fonte{[Schema="public",Item="dim_orgaos"]}[Data]
+				in
+				    public_dim_orgaos
+
+	annotation PBI_ResultType = Table
+
