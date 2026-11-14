@@ -12,6 +12,7 @@ on:
     paths:
       - 'download_pncp.py'
       - 'pncp_etl.py'
+      - 'load_db.py'
       - 'test_pipeline.py'
       - 'requirements.txt'
       - '.github/workflows/**'
@@ -53,7 +54,17 @@ jobs:
         run: |
           pytest -v
 
-      - name: 4. Commitar e Enviar CSV Diretamente para o Repositório (Sem ZIP)
+      - name: 4. Carregar Data Warehouse PostgreSQL no Neon Tech (load_db.py)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          if [ -n "$DATABASE_URL" ]; then
+            python load_db.py
+          else
+            echo "[AVISO] Secret DATABASE_URL não configurado no GitHub. Etapa de carga no Neon ignorada."
+          fi
+
+      - name: 5. Commitar e Enviar CSV Diretamente para o Repositório (Sem ZIP)
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
@@ -65,7 +76,7 @@ jobs:
             git push
           fi
 
-      - name: 5. Gerar Resumo da Execução no GitHub
+      - name: 6. Gerar Resumo da Execução no GitHub
         if: always()
         run: |
           echo "## Resumo da Execução do Pipeline PNCP" >> $GITHUB_STEP_SUMMARY

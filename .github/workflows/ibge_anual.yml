@@ -39,7 +39,17 @@ jobs:
         run: |
           pytest -v
 
-      - name: 3. Commitar e Enviar caso o novo PIB tenha sido lançado
+      - name: 3. Atualizar Dimensões IBGE no Neon Tech (load_db.py)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          if [ -n "$DATABASE_URL" ]; then
+            python load_db.py
+          else
+            echo "[AVISO] Secret DATABASE_URL não configurado no GitHub. Etapa de carga no Neon ignorada."
+          fi
+
+      - name: 4. Commitar e Enviar caso o novo PIB tenha sido lançado
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
