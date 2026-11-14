@@ -85,6 +85,76 @@ def test_download_pncp_upsert_sem_duplicatas(tmp_path, monkeypatch):
     assert mapa["11111111000191-1-000003/2026"]["_uf_consulta"] == "PE"
 
 
+def test_download_pncp_modo_incremental_atualizacao(tmp_path, monkeypatch):
+    """Garante que com cache + estado recente, baixar_dados_brutos usa /atualizacao e remove expirados."""
+    json_path = tmp_path / "dados_brutos_pncp.json"
+    state_path = tmp_path / "pncp_sync_state.json"
+
+    futuro = (datetime.now() + timedelta(days=10)).isoformat(timespec="seconds")
+    passado = (datetime.now() - timedelta(days=2)).isoformat(timespec="seconds")
+    ontem = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+
+    json_path.write_text(
+        json.dumps([
+            {
+                "numeroControlePNCP": "00000000000191-1-000001/2026",
+                "objetoCompra": "Edital Ainda Aberto",
+                "dataEncerramentoProposta": futuro,
+                "_uf_consulta": "PB",
+            },
+            {
+                "numeroControlePNCP": "00000000000191-1-000099/2026",
+                "objetoCompra": "Edital Expirado",
+                "dataEncerramentoProposta": passado,
+                "_uf_consulta": "PB",
+            },
+        ]),
+        encoding="utf-8",
+    )
+    state_path.write_text(json.dumps({"ultima_execucao": ontem}), encoding="utf-8")
+
+    urls_chamadas = []
+
+    def fake_get(self, url, timeout=30):
+        urls_chamadas.append(url)
+        if "codigoModalidadeContratacao=6" in url:
+            resp = MagicMock(status_code=200)
+            resp.json.return_value = {
+                "totalPaginas": 1,
+                "data": [
+                    {
+                        "numeroControlePNCP": "00000000000191-1-000002/2026",
+                        "objetoCompra": "Edital Novo Incremental",
+                        "dataEncerramentoProposta": futuro,
+                    }
+                ],
+            }
+            return resp
+        return MagicMock(status_code=204)
+
+    monkeypatch.setattr(download_pncp.time, "sleep", lambda _: None)
+    monkeypatch.setattr(download_pncp.requests.Session, "get", fake_get)
+
+    download_pncp.baixar_dados_brutos.fn(
+        ufs=("PB",),
+        output_json=str(json_path),
+        state_json=str(state_path),
+    )
+
+    assert len(urls_chamadas) == len(download_pncp.MODALIDADES_PNCP)
+    assert all("/contratacoes/atualizacao" in u for u in urls_chamadas)
+
+    resultado = json.loads(json_path.read_text(encoding="utf-8"))
+    ids = {r["numeroControlePNCP"] for r in resultado}
+    assert ids == {
+        "00000000000191-1-000001/2026",
+        "00000000000191-1-000002/2026",
+    }
+
+    estado_salvo = json.loads(state_path.read_text(encoding="utf-8"))
+    assert estado_salvo["ultima_execucao"] == datetime.now().strftime("%Y-%m-%d")
+
+
 def test_integridade_json_bruto_pncp():
     """Valida a estrutura e unicidade de chaves do arquivo real data/dados_brutos_pncp.json."""
     caminho = os.path.join("data", "dados_brutos_pncp.json")

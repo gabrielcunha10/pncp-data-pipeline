@@ -42,6 +42,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Restaurar Cache Incremental PNCP
+        uses: actions/cache@v4
+        with:
+          path: |
+            data/dados_brutos_pncp.json
+            data/pncp_sync_state.json
+          key: pncp-raw-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            pncp-raw-
+
       - name: 1. Executar Extração da API via Prefect (download_pncp.py)
         run: |
           python download_pncp.py
