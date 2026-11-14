@@ -8,6 +8,7 @@ import pytest
 
 import atualizar_ibge
 import download_pncp
+import load_db
 import pncp_etl
 
 
@@ -429,6 +430,93 @@ def test_orquestracao_prefect_flows_e_tasks():
 
     assert isinstance(pncp_etl.executar_etl, Task)
     assert isinstance(pncp_etl.flow_etl_pncp, Flow)
+
+    assert isinstance(load_db.carregar_banco_dados, Task)
+    assert isinstance(load_db.flow_carga_banco, Flow)
+
+
+# ==============================================================================
+# 6. TESTES DO DATA WAREHOUSE (load_db.py)
+# ==============================================================================
+
+def test_carga_banco_star_schema_e_ano_mais_recente(tmp_path):
+    """Testa criação do Star Schema, seleção dinâmica do maior Ano_PIB, Upsert e remoção de revogados."""
+    from sqlalchemy import create_engine, text
+
+    db_file = tmp_path / "dw_teste.sqlite"
+    db_url = f"sqlite:///{db_file}"
+
+    csv_ufs = tmp_path / "ufs.csv"
+    csv_ufs.write_text(
+        "Ano_PIB;UF;Nome_Estado;Regiao;Capital;Populacao;PIB_Reais;PIB_Formatado;PIB_per_Capita_Reais;Crescimento_Real_Anual_Pct\n"
+        "2023;PB;Paraíba;Nordeste;João Pessoa;3974687;96947000000;R$ 96,95 bilhões;24391.10;3.0\n"
+        "2024;PB;Paraíba;Nordeste;João Pessoa;4000000;105000000000;R$ 105,00 bilhões;26250.00;4.1\n",
+        encoding="utf-8-sig",
+    )
+
+    csv_mun = tmp_path / "municipios.csv"
+    csv_mun.write_text(
+        "Codigo_Municipio_IBGE;Municipio;UF;Nome_Estado;É Capital;Ano_PIB;Populacao;PIB_Reais;PIB_Formatado;PIB_per_Capita_Reais\n"
+        "2507507;João Pessoa;PB;Paraíba;Sim;2023;833932;28418202000;R$ 28,42 bilhões;34077.36\n"
+        "2507507;João Pessoa;PB;Paraíba;Sim;2024;840000;30000000000;R$ 30,00 bilhões;35714.29\n",
+        encoding="utf-8-sig",
+    )
+
+    csv_ed = tmp_path / "editais.csv"
+    cabecalho = (
+        "UF;Número do Edital;Tipo de Instrumento;ID Contratação PNCP;Situação;Modalidade de Contratação;"
+        "Modo de Disputa;Tipo de Compra;Amparo Legal;SRP;Fonte Orçamentária;Órgão;CNPJ do Órgão;"
+        "Nível de Governo (Esfera);Poder;Unidade Compradora;Localidade;Município;Código IBGE do Município;"
+        "É Capital;População do Município;PIB do Município;PIB do Município Numérico;PIB per Capita Municipal;"
+        "Faixa de PIB per Capita;Setor / Área;Motivo da Proposta;Palavras-Chave do Objeto;Objeto;"
+        "Valor Total Estimado;Valor Estimado Numérico;Status do Valor;Ano Publicação;Ano/Mês Publicação;"
+        "Data de Divulgação PNCP;Data Início Recebimento Propostas;Data Fim Recebimento Propostas;"
+        "Última Atualização;Link PNCP;Link Sistema Origem\n"
+    )
+    linha_1 = (
+        "PB;001/2026;Edital;ID-DW-1;Divulgada no PNCP;Pregão - Eletrônico;Aberto;Disputa Aberta (Com Disputa);"
+        "Lei 14.133;Sim;Propria;08.778.268/0001-60 - Prefeitura de João Pessoa;08.778.268/0001-60;"
+        "Municipal (Prefeitura);Executivo;1 - Sec TI;João Pessoa/PB;João Pessoa;2507507;Sim;833932;"
+        "R$ 28,42 bilhões;28418202000;34077.36;Acima de R$ 20 mil (Alto);Informática (TI);TI;notebook;"
+        "Compra de notebooks;R$ 50.000,00;50000.0;Informado;2026;2026-11;10/11/2026 09:00;10/11/2026 09:00;"
+        "20/11/2026 09:00;10/11/2026 09:00;https://pncp.gov.br;PNCP\n"
+    )
+    linha_2 = linha_1.replace("ID-DW-1", "ID-DW-2")
+    csv_ed.write_text(cabecalho + linha_1 + linha_2, encoding="utf-8-sig")
+
+    res_1 = load_db.carregar_banco_dados.fn(
+        database_url=db_url,
+        csv_ufs=str(csv_ufs),
+        csv_municipios=str(csv_mun),
+        csv_editais=str(csv_ed),
+    )
+    assert res_1["dim_estados"] == 1
+    assert res_1["dim_municipios"] == 1
+    assert res_1["dim_orgaos"] == 1
+    assert res_1["fato_editais"] == 2
+
+    engine = create_engine(db_url)
+    with engine.connect() as conn:
+        ano_mun = conn.execute(text("SELECT ano_pib FROM dim_municipios WHERE codigo_ibge = '2507507'")).scalar()
+        assert ano_mun == 2024, "Deve selecionar dinamicamente o ano mais recente (2024)."
+
+    # 2ª carga: ID-DW-2 foi removido (revogado) e ID-DW-1 teve valor retificado
+    csv_ed.write_text(cabecalho + linha_1.replace("50000.0", "80000.0"), encoding="utf-8-sig")
+    res_2 = load_db.carregar_banco_dados.fn(
+        database_url=db_url,
+        csv_ufs=str(csv_ufs),
+        csv_municipios=str(csv_mun),
+        csv_editais=str(csv_ed),
+    )
+    assert res_2["fato_editais"] == 1
+    assert res_2["removidos"] == 1
+
+    with engine.connect() as conn:
+        total = conn.execute(text("SELECT COUNT(*) FROM fato_editais")).scalar()
+        valor = conn.execute(text("SELECT valor_estimado FROM fato_editais WHERE id_contratacao_pncp = 'ID-DW-1'")).scalar()
+        assert total == 1
+        assert float(valor) == 80000.0
+
 
 
 def test_sistema_de_logs_persistente():
