@@ -30,7 +30,7 @@
               "scaling": {
                 "expr": {
                   "Literal": {
-                    "Value": "'Fit'"
+                    "Value": "'Fill'"
                   }
                 }
               }
@@ -45,6 +45,13 @@
                     "Percent": 0
                   }
                 }
+              }
+            }
+          },
+          "transparency": {
+            "expr": {
+              "Literal": {
+                "Value": "0D"
               }
             }
           }
