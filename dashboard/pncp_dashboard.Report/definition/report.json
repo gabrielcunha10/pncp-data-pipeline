@@ -37,6 +37,32 @@
           "type": "BaseTheme"
         }
       ]
+    },
+    {
+      "name": "RegisteredResources",
+      "type": "RegisteredResources",
+      "items": [
+        {
+          "name": "consulta_editais34826460006394655.PNG",
+          "path": "consulta_editais34826460006394655.PNG",
+          "type": "Image"
+        },
+        {
+          "name": "economia_territorio3800244422356913.PNG",
+          "path": "economia_territorio3800244422356913.PNG",
+          "type": "Image"
+        },
+        {
+          "name": "setores_e_esferas23055608935888894.PNG",
+          "path": "setores_e_esferas23055608935888894.PNG",
+          "type": "Image"
+        },
+        {
+          "name": "visao_geral23480383997053633.PNG",
+          "path": "visao_geral23480383997053633.PNG",
+          "type": "Image"
+        }
+      ]
     }
   ],
   "settings": {

@@ -1,0 +1,74 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 0,
+        "y": 10.629365999999971
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 202.35424599999956,
+            "y": 0
+          },
+          "nodeIndex": "public dim_estados",
+          "nodeLineageTag": "48e7ba20-babe-4811-a24e-d8270f896eae",
+          "size": {
+            "height": 296,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 607.02264910460826,
+            "y": 0
+          },
+          "nodeIndex": "public dim_municipios",
+          "nodeLineageTag": "3e6fe604-d2b5-407b-b4c3-35c9c1755ffa",
+          "size": {
+            "height": 296,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 601.45679291713725,
+            "y": 763.54279099999792
+          },
+          "nodeIndex": "public dim_orgaos",
+          "nodeLineageTag": "7ff18fa9-2a96-4c99-8a9c-da2974d4c74c",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 606.00947481545575,
+            "y": 370.25624899999895
+          },
+          "nodeIndex": "public fato_editais",
+          "nodeLineageTag": "bfa5113e-5b9e-4fda-98d3-110f4213dd37",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        }
+      ],
+      "name": "Todas as tabelas",
+      "zoomValue": 56.4473930053779,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "Todas as tabelas",
+  "defaultDiagram": "Todas as tabelas"
+}
