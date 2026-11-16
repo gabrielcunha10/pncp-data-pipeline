@@ -237,6 +237,25 @@ table 'public fato_editais'
 
 		annotation SummarizationSetBy = Automatic
 
+	column mes_num = MONTH('public fato_editais'[data_divulgacao])
+		formatString: 0
+		lineageTag: 3fcfa2fe-951e-433a-8687-d03dc5b00f02
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column mes_nome =
+			
+			VAR m = FORMAT('public fato_editais'[data_divulgacao], "mmmm", "pt-BR")
+			RETURN UPPER(LEFT(m, 1)) & MID(m, 2, 20)
+		lineageTag: c8f64aaa-beff-4933-9041-816f1bae07bf
+		summarizeBy: none
+		sortByColumn: mes_num
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
 	partition 'public fato_editais' = m
 		mode: import
 		source =
