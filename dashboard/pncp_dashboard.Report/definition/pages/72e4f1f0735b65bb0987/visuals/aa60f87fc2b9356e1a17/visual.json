@@ -4,10 +4,10 @@
   "position": {
     "x": 1450.2127659574467,
     "y": 67.112462006079028,
-    "z": 8003,
+    "z": 11000,
     "height": 74.40729483282675,
     "width": 215.92705167173253,
-    "tabOrder": 8003
+    "tabOrder": 11000
   },
   "visual": {
     "visualType": "slicer",
@@ -368,23 +368,5 @@
       "filterChanges": true
     },
     "drillFilterOtherVisuals": true
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "7c2a66b0402895a58073",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "public fato_editais"
-              }
-            },
-            "Property": "setor_area"
-          }
-        },
-        "type": "Categorical"
-      }
-    ]
   }
 }

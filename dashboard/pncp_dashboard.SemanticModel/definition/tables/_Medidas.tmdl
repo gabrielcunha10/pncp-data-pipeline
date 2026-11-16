@@ -1,0 +1,248 @@
+table _Medidas
+	lineageTag: 2a44900d-ad39-429e-8ddb-a363555a19f8
+
+	measure 'Volume Financeiro Estimado' = SUM('public fato_editais'[valor_estimado])
+		formatString: "R$"\ #,0.00;-"R$"\ #,0.00;"R$"\ #,0.00
+		displayFolder: 1. Visão Geral
+		lineageTag: 35e0b1b9-4923-466e-80c5-a5d93a1d6af7
+
+	measure 'Volume de Processos Abertos' = COUNTROWS('public fato_editais')
+		formatString: #,0
+		displayFolder: 1. Visão Geral
+		lineageTag: 300ec513-ae6e-4f33-ab5e-fd8cb34e7c5c
+
+	measure 'Ticket Médio por Compra' = DIVIDE([Volume Financeiro Estimado], [Volume de Processos Abertos], 0)
+		formatString: "R$"\ #,0.00;-"R$"\ #,0.00;"R$"\ #,0.00
+		displayFolder: 1. Visão Geral
+		lineageTag: 78034ba4-a396-4f98-8b21-987f4097dacb
+
+	measure '% Compras Sem Disputa' =
+			DIVIDE(
+			    CALCULATE(
+			        [Volume de Processos Abertos],
+			        KEEPFILTERS('public fato_editais'[tipo_compra] = "Compra Direta (Sem Disputa)")
+			    ),
+			    [Volume de Processos Abertos],
+			    0
+			)
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 1. Visão Geral
+		lineageTag: 91bc29ff-d070-4a63-b83e-9726b354ab42
+
+	measure 'Volume Esfera Municipal' =
+			CALCULATE(
+			    [Volume Financeiro Estimado],
+			    KEEPFILTERS('public dim_orgaos'[esfera] = "Municipal (Prefeitura)")
+			)
+		formatString: "R$"\ #,0.00;-"R$"\ #,0.00;"R$"\ #,0.00
+		displayFolder: 2. Setores e Esferas
+		lineageTag: b9a5c1f2-fc9f-49dd-8296-153649db620c
+
+	measure '% Poder Executivo' =
+			DIVIDE(
+			    CALCULATE(
+			        [Volume Financeiro Estimado],
+			        KEEPFILTERS('public dim_orgaos'[poder] = "Executivo")
+			    ),
+			    [Volume Financeiro Estimado],
+			    0
+			)
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 2. Setores e Esferas
+		lineageTag: 16fed6cc-6b4f-483b-b3a2-6e18719028e1
+
+	measure 'Fatia 5 Maiores Órgãos (%)' =
+			VAR Top5Orgaos =
+			    SUMX(
+			        TOPN(
+			            5,
+			            VALUES('public dim_orgaos'[cnpj_orgao]),
+			            [Volume Financeiro Estimado],
+			            DESC
+			        ),
+			        [Volume Financeiro Estimado]
+			    )
+			RETURN
+			DIVIDE(Top5Orgaos, [Volume Financeiro Estimado], 0)
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 2. Setores e Esferas
+		lineageTag: 8e2be7b9-9f4d-42a3-9c1c-b948efa3fa73
+
+	measure 'Órgãos Compradores Ativos' = DISTINCTCOUNT('public fato_editais'[cnpj_orgao])
+		formatString: #,0
+		displayFolder: 2. Setores e Esferas
+		lineageTag: d9587ac5-0c60-4fa5-bd72-7960599852ee
+
+	measure 'Cobertura Territorial (%)' =
+			DIVIDE(
+			    DISTINCTCOUNT('public fato_editais'[codigo_ibge]),
+			    COUNTROWS('public dim_municipios'),
+			    0
+			)
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 3. Economia e Território
+		lineageTag: 5f03c8d4-862d-4877-ab2e-1a7be4f87303
+
+	measure 'Razão Concentração Capital vs PIB' =
+			VAR PctComprasCapital =
+			    DIVIDE(
+			        CALCULATE(
+			            [Volume Financeiro Estimado],
+			            'public dim_municipios'[eh_capital] = TRUE()
+			        ),
+			        [Volume Financeiro Estimado],
+			        0
+			    )
+			VAR PctPibCapital =
+			    DIVIDE(
+			        CALCULATE(
+			            SUM('public dim_municipios'[pib_reais]),
+			            'public dim_municipios'[eh_capital] = TRUE()
+			        ),
+			        SUM('public dim_municipios'[pib_reais]),
+			        0
+			    )
+			RETURN
+			DIVIDE(PctComprasCapital, PctPibCapital, 0)
+		formatString: 0.00"x"
+		displayFolder: 3. Economia e Território
+		lineageTag: 7e72694d-06b8-49ba-899d-c1189f73c799
+
+	measure 'Gasto por Habitante (R$/hab)' = DIVIDE([Volume Financeiro Estimado], SUM('public dim_municipios'[populacao]), 0)
+		formatString: "R$"\ #,0.00;-"R$"\ #,0.00;"R$"\ #,0.00
+		displayFolder: 3. Economia e Território
+		lineageTag: b70c1cfc-e8a3-41c9-9d2f-b7331b05142a
+
+	measure 'Intensidade no PIB Local (%)' =
+			DIVIDE(
+			    CALCULATE(
+			        [Volume Financeiro Estimado],
+			        KEEPFILTERS('public dim_orgaos'[esfera] = "Municipal (Prefeitura)")
+			    ),
+			    SUM('public dim_municipios'[pib_reais]),
+			    0
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: 3. Economia e Território
+		lineageTag: 21b0dcf3-f9bc-41d0-af3a-25010747c064
+
+	measure 'Índice de Opacidade (%)' =
+			DIVIDE(
+			    CALCULATE(
+			        [Volume de Processos Abertos],
+			        KEEPFILTERS('public fato_editais'[status_valor] <> "Informado")
+			    ),
+			    [Volume de Processos Abertos],
+			    0
+			)
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 4. Consulta e Transparência
+		lineageTag: c2be94a0-c220-4302-a748-dfe4aa191e79
+
+	measure 'Municípios Alta Dependência' =
+			COUNTROWS(
+			    FILTER(
+			        VALUES('public dim_municipios'[codigo_ibge]),
+			        VAR ValorPrefeitura =
+			            CALCULATE(
+			                [Volume Financeiro Estimado],
+			                'public dim_orgaos'[esfera] = "Municipal (Prefeitura)"
+			            )
+			        VAR PibLocal = CALCULATE(SUM('public dim_municipios'[pib_reais]))
+			        RETURN
+			        PibLocal > 0 && DIVIDE(ValorPrefeitura, PibLocal, 0) > 0.10
+			    )
+			)
+		formatString: #,0
+		displayFolder: 4. Consulta e Transparência
+		lineageTag: 6da53405-73e2-4aa1-af33-ebccafc23bf0
+
+	measure '% Dinheiro em Compras Diretas' =
+			DIVIDE(
+			    CALCULATE(
+			        [Volume Financeiro Estimado],
+			        KEEPFILTERS('public fato_editais'[tipo_compra] = "Compra Direta (Sem Disputa)")
+			    ),
+			    [Volume Financeiro Estimado],
+			    0
+			)
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 5. Complementares (Gráficos)
+		lineageTag: 6f9b02be-e4f0-4351-b963-952ebd6d326a
+
+	measure 'Volume em Disputa Aberta' =
+			CALCULATE(
+			    [Volume Financeiro Estimado],
+			    KEEPFILTERS('public fato_editais'[tipo_compra] = "Disputa Aberta (Com Disputa)")
+			)
+		formatString: "R$"\ #,0.00;-"R$"\ #,0.00;"R$"\ #,0.00
+		displayFolder: 5. Complementares (Gráficos)
+		lineageTag: 68cd253d-d6a9-4863-81cf-f2596aecb73f
+
+	measure 'Volume em Compra Direta' =
+			CALCULATE(
+			    [Volume Financeiro Estimado],
+			    KEEPFILTERS('public fato_editais'[tipo_compra] = "Compra Direta (Sem Disputa)")
+			)
+		formatString: "R$"\ #,0.00;-"R$"\ #,0.00;"R$"\ #,0.00
+		displayFolder: 5. Complementares (Gráficos)
+		lineageTag: e54e2a11-2c94-49ae-b3d8-0820d7ce5ee5
+
+	measure 'Taxa de Concorrência (%)' =
+			DIVIDE(
+			    CALCULATE(
+			        [Volume de Processos Abertos],
+			        KEEPFILTERS('public fato_editais'[tipo_compra] = "Disputa Aberta (Com Disputa)")
+			    ),
+			    [Volume de Processos Abertos],
+			    0
+			)
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 5. Complementares (Gráficos)
+		lineageTag: 48c0b599-17d9-4dac-9cd8-7a5df57d8e2d
+
+	measure 'Municípios Ativos' = DISTINCTCOUNT('public fato_editais'[codigo_ibge])
+		formatString: #,0
+		displayFolder: 5. Complementares (Gráficos)
+		lineageTag: 66e08e1c-2a95-49da-a851-213bfa70c894
+
+	measure '% Participação Orçamento' =
+			DIVIDE(
+			    [Volume Financeiro Estimado],
+			    CALCULATE([Volume Financeiro Estimado], ALLSELECTED('public fato_editais')),
+			    0
+			)
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 5. Complementares (Gráficos)
+		lineageTag: 3efb6198-2e1a-42ed-94be-5f193f3e0455
+
+	measure 'Faixa de Dependência PIB' =
+			VAR Indice = [Intensidade no PIB Local (%)]
+			RETURN
+			SWITCH(
+			    TRUE(),
+			    Indice > 0.10, "Alta Dependência (> 10% do PIB)",
+			    Indice >= 0.03, "Média Dependência (3% a 10% do PIB)",
+			    "Baixa Dependência (< 3% do PIB)"
+			)
+		displayFolder: 5. Complementares (Gráficos)
+		lineageTag: bc561747-ca0f-4777-8fd4-eb131dde1061
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	column Value
+		isHidden
+		formatString: 0
+		lineageTag: af83e360-da10-48a9-91d7-0e45d54b1800
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Value]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition _Medidas = calculated
+		mode: import
+		source = { 1 }
+
+	annotation PBI_Id = a46fe93e845244d0ae1ddb3d4529ed2a
+

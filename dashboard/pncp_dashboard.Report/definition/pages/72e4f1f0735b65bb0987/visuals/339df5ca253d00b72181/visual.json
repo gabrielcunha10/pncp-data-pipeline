@@ -4,10 +4,10 @@
   "position": {
     "x": 960,
     "y": 67.112462006079028,
-    "z": 8001,
+    "z": 9000,
     "height": 74.40729483282675,
     "width": 215.92705167173253,
-    "tabOrder": 8001
+    "tabOrder": 9000
   },
   "visual": {
     "visualType": "slicer",
@@ -426,37 +426,5 @@
       "filterChanges": true
     },
     "drillFilterOtherVisuals": true
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "fe3efd1cbb4b385035ba",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "public dim_municipios"
-              }
-            },
-            "Property": "uf"
-          }
-        },
-        "type": "Categorical"
-      },
-      {
-        "name": "be2e4ad6470b79c8da68",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "public dim_municipios"
-              }
-            },
-            "Property": "municipio"
-          }
-        },
-        "type": "Categorical"
-      }
-    ]
   }
 }

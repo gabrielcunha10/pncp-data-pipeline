@@ -4,10 +4,10 @@
   "position": {
     "x": 1205.1063829787233,
     "y": 67.112462006079028,
-    "z": 8002,
+    "z": 10000,
     "height": 74.40729483282675,
     "width": 215.92705167173253,
-    "tabOrder": 8002
+    "tabOrder": 10000
   },
   "visual": {
     "visualType": "slicer",
@@ -429,37 +429,5 @@
       "filterChanges": true
     },
     "drillFilterOtherVisuals": true
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "2d00adc690ab664b1ad2",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "public fato_editais"
-              }
-            },
-            "Property": "mes_nome"
-          }
-        },
-        "type": "Categorical"
-      },
-      {
-        "name": "a222b8725b5e1c9b1a95",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "public fato_editais"
-              }
-            },
-            "Property": "ano_publicacao"
-          }
-        },
-        "type": "Advanced"
-      }
-    ]
   }
 }
