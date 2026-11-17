@@ -256,6 +256,15 @@ table 'public fato_editais'
 
 		annotation SummarizationSetBy = Automatic
 
+	column data_divulgacao_dia = DATE(YEAR('public fato_editais'[data_divulgacao]), MONTH('public fato_editais'[data_divulgacao]), DAY('public fato_editais'[data_divulgacao]))
+		dataType: dateTime
+		isHidden
+		formatString: Short Date
+		lineageTag: fbf37062-5ff4-4ff4-8f36-a1d215a02b12
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
 	partition 'public fato_editais' = m
 		mode: import
 		source =

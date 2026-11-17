@@ -4,10 +4,10 @@
   "position": {
     "x": 221.66666666666669,
     "y": 198.33333333333334,
-    "z": 12001,
+    "z": 12000,
     "height": 133,
     "width": 388.08510638297872,
-    "tabOrder": 12001
+    "tabOrder": 12000
   },
   "visual": {
     "visualType": "cardVisual",
@@ -585,23 +585,5 @@
       ]
     },
     "drillFilterOtherVisuals": true
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "e75f315ae01245206880",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "_Medidas"
-              }
-            },
-            "Property": "Volume de Processos Abertos"
-          }
-        },
-        "type": "Advanced"
-      }
-    ]
   }
 }

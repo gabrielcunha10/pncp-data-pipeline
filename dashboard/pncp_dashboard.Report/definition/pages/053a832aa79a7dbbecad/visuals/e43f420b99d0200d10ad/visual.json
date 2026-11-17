@@ -585,23 +585,5 @@
       ]
     },
     "drillFilterOtherVisuals": true
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "8cd345e06959de0b2373",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "_Medidas"
-              }
-            },
-            "Property": "Volume de Processos Abertos"
-          }
-        },
-        "type": "Advanced"
-      }
-    ]
   }
 }

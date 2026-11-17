@@ -280,23 +280,5 @@
       ]
     },
     "drillFilterOtherVisuals": true
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "f1f8736dd0d39300722d",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "_Medidas"
-              }
-            },
-            "Property": "Volume Financeiro Estimado"
-          }
-        },
-        "type": "Advanced"
-      }
-    ]
   }
 }

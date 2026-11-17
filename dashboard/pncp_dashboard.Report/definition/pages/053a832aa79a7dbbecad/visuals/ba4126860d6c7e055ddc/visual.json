@@ -559,23 +559,5 @@
       ]
     },
     "drillFilterOtherVisuals": true
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "d6af833f8dd736c64567",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "_Medidas"
-              }
-            },
-            "Property": "% Compras Sem Disputa"
-          }
-        },
-        "type": "Advanced"
-      }
-    ]
   }
 }

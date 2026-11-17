@@ -570,23 +570,5 @@
       ]
     },
     "drillFilterOtherVisuals": true
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "b3e1e51aaa950313303c",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "_Medidas"
-              }
-            },
-            "Property": "Razão Concentração Capital vs PIB"
-          }
-        },
-        "type": "Advanced"
-      }
-    ]
   }
 }

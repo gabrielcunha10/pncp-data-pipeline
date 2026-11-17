@@ -4,10 +4,10 @@
   "position": {
     "x": 655.55555555555566,
     "y": 198.33333333333334,
-    "z": 1000,
+    "z": 0,
     "height": 133,
     "width": 388.08510638297872,
-    "tabOrder": 1000
+    "tabOrder": 0
   },
   "visual": {
     "visualType": "cardVisual",
@@ -570,23 +570,5 @@
       ]
     },
     "drillFilterOtherVisuals": true
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "cd4311f0c5182c4929be",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "_Medidas"
-              }
-            },
-            "Property": "Volume Financeiro Estimado"
-          }
-        },
-        "type": "Advanced"
-      }
-    ]
   }
 }

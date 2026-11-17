@@ -1,0 +1,72 @@
+table dim_calendario
+	lineageTag: 0b24864a-1fbe-4e90-944b-85df6d1d4478
+	dataCategory: Time
+
+	column Date
+		dataType: dateTime
+		isKey
+		formatString: Short Date
+		lineageTag: b5682b5b-940e-47f6-9168-272222c111db
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Date]
+
+		annotation SummarizationSetBy = Automatic
+
+	column ano = YEAR([Date])
+		dataType: int64
+		formatString: 0
+		lineageTag: a4a30998-fe97-4566-9d8d-28c1c25bd8ab
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column mes_num = MONTH([Date])
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: beed0ae3-7a6e-4a96-b5a6-784bbd35148e
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column mes_nome =
+			
+			VAR m = FORMAT([Date], "mmmm", "pt-BR")
+			RETURN UPPER(LEFT(m, 1)) & MID(m, 2, 20)
+		dataType: string
+		lineageTag: be14a07e-25ab-4c3d-a7f4-b35850b7fa0d
+		summarizeBy: none
+		sortByColumn: mes_num
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column ano_mes = FORMAT([Date], "yyyy-MM")
+		dataType: string
+		lineageTag: a63f026e-7a5f-4a67-aa37-176d1af67a7d
+		summarizeBy: none
+		sortByColumn: mes_data
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column mes_data = DATE(YEAR([Date]), MONTH([Date]), 1)
+		dataType: dateTime
+		formatString: mmm/yyyy
+		lineageTag: 26a5dfcc-3946-4a1a-9cb6-88da75381602
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_calendario = calculated
+		mode: import
+		source =
+				
+				CALENDAR(
+				    DATE(YEAR(MIN('public fato_editais'[data_divulgacao])), MONTH(MIN('public fato_editais'[data_divulgacao])), 1),
+				    EOMONTH(MAX('public fato_editais'[data_divulgacao]), 0)
+				)
+

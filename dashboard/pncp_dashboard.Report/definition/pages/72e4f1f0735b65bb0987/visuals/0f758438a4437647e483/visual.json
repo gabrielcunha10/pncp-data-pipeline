@@ -570,23 +570,5 @@
       ]
     },
     "drillFilterOtherVisuals": true
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "3975eb8208800762c60b",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "_Medidas"
-              }
-            },
-            "Property": "Intensidade no PIB Local (%)"
-          }
-        },
-        "type": "Advanced"
-      }
-    ]
   }
 }

@@ -2,6 +2,8 @@
 
 Pipeline de dados desenvolvido para o projeto comparativo de compras públicas entre **Paraíba (PB)** e **Pernambuco (PE)** via Portal Nacional de Contratações Públicas (PNCP), estruturado de acordo com o modelo de objetivos e métricas DEILAS.
 
+**Dashboard Interativo (Power BI):** [Acessar Painel Online](https://app.powerbi.com/view?r=eyJrIjoiODNmMzEwMjMtOTQxNS00ZTJjLWIzYTktMGQ5ZmI1NDIwZTdhIiwidCI6IjhjODgwZTJhLTM2MDAtNDVmZi1hZDM5LWJhMDRlZGM4MWYyNSJ9&pageName=a600503d1d641752aa63)
+
 ---
 
 ## Bases de Dados Utilizadas
@@ -77,6 +79,7 @@ O ciclo de vida do projeto está dividido em cinco etapas fundamentais:
 
 ### 5. Visualização e Dashboards no Power BI
 
+* **Painel Publicado:** [PNCP Analytics — Power BI Online](https://app.powerbi.com/view?r=eyJrIjoiODNmMzEwMjMtOTQxNS00ZTJjLWIzYTktMGQ5ZmI1NDIwZTdhIiwidCI6IjhjODgwZTJhLTM2MDAtNDVmZi1hZDM5LWJhMDRlZGM4MWYyNSJ9&pageName=a600503d1d641752aa63)
 * Conexão do Power BI diretamente ao banco de dados ou ao arquivo CSV tratado.
 * Modelagem dimensional e criação de medidas analíticas em DAX.
 * Desenvolvimento dos relatórios e painéis interativos para responder às 7 perguntas de negócio do modelo DEILAS (enriquecido com o PIB Municipal do IBGE):

@@ -230,6 +230,33 @@ table _Medidas
 
 		annotation PBI_FormatHint = {"isText":true}
 
+	measure 'Volume Financeiro Mensal (Contínuo)' =
+			VAR TemDadosNaSerie =
+			    NOT ISBLANK(
+			        CALCULATE(
+			            [Volume de Processos Abertos],
+			            REMOVEFILTERS('dim_calendario')
+			        )
+			    )
+			VAR AnosVisiveis = CALCULATETABLE(VALUES('public fato_editais'[ano_publicacao]), ALLSELECTED())
+			VAR MesesFiltrados = CALCULATETABLE(VALUES('public fato_editais'[mes_num]), ALLSELECTED())
+			VAR FiltroMesAtivo = ISFILTERED('public fato_editais'[mes_nome]) || ISFILTERED('public fato_editais'[ano_mes_publicacao])
+			VAR MinData = CALCULATE(MIN('public fato_editais'[data_divulgacao_dia]), ALLSELECTED())
+			VAR MaxData = CALCULATE(MAX('public fato_editais'[data_divulgacao_dia]), ALLSELECTED())
+			VAR MesAtual = MIN('dim_calendario'[mes_data])
+			VAR DentroPeriodo =
+			    TemDadosNaSerie
+			        && NOT ISBLANK(MinData)
+			        && MesAtual >= DATE(YEAR(MinData), MONTH(MinData), 1)
+			        && MesAtual <= DATE(YEAR(MaxData), MONTH(MaxData), 1)
+			        && YEAR(MesAtual) IN AnosVisiveis
+			        && (NOT FiltroMesAtivo || MONTH(MesAtual) IN MesesFiltrados)
+			RETURN
+			IF(DentroPeriodo, COALESCE([Volume Financeiro Estimado], 0))
+		formatString: "R$"\ #,0.00;-"R$"\ #,0.00;"R$"\ #,0.00
+		displayFolder: 5. Complementares (Gráficos)
+		lineageTag: 167ee940-ce87-44b8-8acc-66c653917bbb
+
 	column Value
 		isHidden
 		formatString: 0

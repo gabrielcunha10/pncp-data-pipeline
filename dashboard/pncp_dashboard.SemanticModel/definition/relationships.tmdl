@@ -36,3 +36,7 @@ relationship bf14e244-bce5-4961-b443-984e9cd4d319
 
 	annotation PBI_IsFromSource = FS
 
+relationship bbdabb66-5e42-44dd-aa38-4257c631d043
+	fromColumn: 'public fato_editais'.data_divulgacao_dia
+	toColumn: dim_calendario.Date
+

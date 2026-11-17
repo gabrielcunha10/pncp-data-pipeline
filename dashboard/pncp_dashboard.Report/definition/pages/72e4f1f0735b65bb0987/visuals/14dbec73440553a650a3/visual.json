@@ -570,23 +570,5 @@
       ]
     },
     "drillFilterOtherVisuals": true
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "2674c12c377851667b11",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "_Medidas"
-              }
-            },
-            "Property": "Gasto por Habitante (R$/hab)"
-          }
-        },
-        "type": "Advanced"
-      }
-    ]
   }
 }

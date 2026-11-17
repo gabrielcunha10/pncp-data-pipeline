@@ -570,23 +570,5 @@
       ]
     },
     "drillFilterOtherVisuals": true
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "079981f245be923d11ba",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "_Medidas"
-              }
-            },
-            "Property": "Fatia 5 Maiores Órgãos (%)"
-          }
-        },
-        "type": "Advanced"
-      }
-    ]
   }
 }

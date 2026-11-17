@@ -559,23 +559,5 @@
       ]
     },
     "drillFilterOtherVisuals": true
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "8403995c2b043e04b043",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "_Medidas"
-              }
-            },
-            "Property": "Ticket Médio por Compra"
-          }
-        },
-        "type": "Advanced"
-      }
-    ]
   }
 }
