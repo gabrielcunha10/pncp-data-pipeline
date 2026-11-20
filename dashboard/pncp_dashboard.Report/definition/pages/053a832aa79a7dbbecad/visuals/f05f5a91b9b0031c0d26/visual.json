@@ -206,6 +206,13 @@
                 }
               }
             },
+            "labelDisplayUnits": {
+              "expr": {
+                "Literal": {
+                  "Value": "1D"
+                }
+              }
+            },
             "secShow": {
               "expr": {
                 "Literal": {
@@ -374,6 +381,13 @@
               "expr": {
                 "Literal": {
                   "Value": "'OutsideEnd'"
+                }
+              }
+            },
+            "labelDisplayUnits": {
+              "expr": {
+                "Literal": {
+                  "Value": "1D"
                 }
               }
             },

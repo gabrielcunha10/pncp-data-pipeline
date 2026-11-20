@@ -6,6 +6,9 @@ table 'public dim_estados'
 		lineageTag: 3b0d53cd-e3ab-4e38-9103-c30947fe89c4
 		summarizeBy: none
 		sourceColumn: uf
+		sortByColumn: uf_ordem
+
+		changedProperty = SortByColumn
 
 		annotation SummarizationSetBy = Automatic
 
@@ -80,6 +83,14 @@ table 'public dim_estados'
 		annotation SummarizationSetBy = Automatic
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column uf_ordem = IF('public dim_estados'[nome_estado] = "Pernambuco", 1, 2)
+		isHidden
+		formatString: 0
+		lineageTag: a7d4c8e2-91f0-4b3a-8c5d-202611200001
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
 
 	partition 'public dim_estados' = m
 		mode: import

@@ -1,2 +1,200 @@
 cultureInfo pt-BR
 
+	linguisticMetadata =
+			{
+			  "Version": "2.0.0",
+			  "Language": "en-US",
+			  "Entities": {
+			    "public_dim_estados.uf": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "public dim_estados",
+			          "ConceptualProperty": "uf"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "UF": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "public_dim_municipios.municipio": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "public dim_municipios",
+			          "ConceptualProperty": "municipio"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Município": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "public_dim_orgaos.nome_orgao": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "public dim_orgaos",
+			          "ConceptualProperty": "nome_orgao"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Órgão": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "public_fato_editais.modalidade_contratacao": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "public fato_editais",
+			          "ConceptualProperty": "modalidade_contratacao"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Modalidade": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "public_fato_editais.setor_area": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "public fato_editais",
+			          "ConceptualProperty": "setor_area"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Setor / Área": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "public_fato_editais.objeto": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "public fato_editais",
+			          "ConceptualProperty": "objeto"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Objeto": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "public_fato_editais.status_valor": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "public fato_editais",
+			          "ConceptualProperty": "status_valor"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Status do Valor": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "public_fato_editais.link_pncp": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "public fato_editais",
+			          "ConceptualProperty": "link_pncp"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Link PNCP": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "table_medidas.volume_financeiro_estimado": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "_Medidas",
+			          "ConceptualProperty": "Volume Financeiro Estimado"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Valor Estimado": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    }
+			  }
+			}
+		contentType: json
+

@@ -10,7 +10,7 @@
     "tabOrder": 13000
   },
   "visual": {
-    "visualType": "clusteredBarChart",
+    "visualType": "hundredPercentStackedBarChart",
     "query": {
       "queryState": {
         "Category": {
@@ -32,21 +32,21 @@
             }
           ]
         },
-        "Y": {
+        "Series": {
           "projections": [
             {
               "field": {
-                "Measure": {
+                "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "_Medidas"
+                      "Entity": "public dim_estados"
                     }
                   },
-                  "Property": "Volume Financeiro Estimado"
+                  "Property": "uf"
                 }
               },
-              "queryRef": "_Medidas.Volume Financeiro Estimado",
-              "nativeQueryRef": "Volume Financeiro Estimado"
+              "queryRef": "public dim_estados.uf",
+              "nativeQueryRef": "uf"
             }
           ]
         },
@@ -95,6 +95,24 @@
               "nativeQueryRef": "Ticket Médio por Compra"
             }
           ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Medidas"
+                    }
+                  },
+                  "Property": "Volume Financeiro Estimado"
+                }
+              },
+              "queryRef": "_Medidas.Volume Financeiro Estimado",
+              "nativeQueryRef": "Volume Financeiro Estimado"
+            }
+          ]
         }
       },
       "sortDefinition": {
@@ -136,7 +154,39 @@
             "show": {
               "expr": {
                 "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "position": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Bottom'"
+                }
+              }
+            },
+            "showTitle": {
+              "expr": {
+                "Literal": {
                   "Value": "false"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "12D"
+                }
+              }
+            },
+            "labelColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#334155'"
+                    }
+                  }
                 }
               }
             }
@@ -156,7 +206,7 @@
             "fontSize": {
               "expr": {
                 "Literal": {
-                  "Value": "12D"
+                  "Value": "10D"
                 }
               }
             },
@@ -174,14 +224,14 @@
             "innerPadding": {
               "expr": {
                 "Literal": {
-                  "Value": "26D"
+                  "Value": "14D"
                 }
               }
             },
             "maxMarginFactor": {
               "expr": {
                 "Literal": {
-                  "Value": "42D"
+                  "Value": "33D"
                 }
               }
             }
@@ -212,6 +262,13 @@
                 }
               }
             },
+            "labelDisplayUnits": {
+              "expr": {
+                "Literal": {
+                  "Value": "1D"
+                }
+              }
+            },
             "labelColor": {
               "solid": {
                 "color": {
@@ -234,12 +291,79 @@
                 "color": {
                   "expr": {
                     "Literal": {
+                      "Value": "'#0F172A'"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "selector": {
+            "data": [
+              {
+                "scopeId": {
+                  "Comparison": {
+                    "ComparisonKind": 0,
+                    "Left": {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Entity": "public dim_estados"
+                          }
+                        },
+                        "Property": "uf"
+                      }
+                    },
+                    "Right": {
+                      "Literal": {
+                        "Value": "'PE'"
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "properties": {
+            "fill": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
                       "Value": "'#1E3A8A'"
                     }
                   }
                 }
               }
             }
+          },
+          "selector": {
+            "data": [
+              {
+                "scopeId": {
+                  "Comparison": {
+                    "ComparisonKind": 0,
+                    "Left": {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Entity": "public dim_estados"
+                          }
+                        },
+                        "Property": "uf"
+                      }
+                    },
+                    "Right": {
+                      "Literal": {
+                        "Value": "'PB'"
+                      }
+                    }
+                  }
+                }
+              }
+            ]
           }
         }
       ],
@@ -277,21 +401,21 @@
             "labelContentLayout": {
               "expr": {
                 "Literal": {
-                  "Value": "'SingleLine'"
+                  "Value": "'MultiLine'"
                 }
               }
             },
-            "labelPosition": {
+            "labelDisplayUnits": {
               "expr": {
                 "Literal": {
-                  "Value": "'OutsideEnd'"
+                  "Value": "1D"
                 }
               }
             },
             "labelOverflow": {
               "expr": {
                 "Literal": {
-                  "Value": "true"
+                  "Value": "false"
                 }
               }
             },
@@ -305,7 +429,7 @@
             "fontSize": {
               "expr": {
                 "Literal": {
-                  "Value": "12D"
+                  "Value": "9D"
                 }
               }
             },
@@ -321,7 +445,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#0F172A'"
+                      "Value": "'#FFFFFF'"
                     }
                   }
                 }
@@ -330,7 +454,7 @@
             "detailFontSize": {
               "expr": {
                 "Literal": {
-                  "Value": "11D"
+                  "Value": "8D"
                 }
               }
             },
@@ -346,7 +470,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#475569'"
+                      "Value": "'#E2E8F0'"
                     }
                   }
                 }
@@ -556,7 +680,7 @@
   "filterConfig": {
     "filters": [
       {
-        "name": "a1b2c3d4e5f60718293a",
+        "name": "dc54d5a41d56d7aa639b",
         "field": {
           "Column": {
             "Expression": {
@@ -570,7 +694,7 @@
         "type": "Categorical"
       },
       {
-        "name": "b2c3d4e5f60718293a4b",
+        "name": "55ee61f58104717a1bce",
         "field": {
           "Measure": {
             "Expression": {
@@ -584,7 +708,7 @@
         "type": "Advanced"
       },
       {
-        "name": "c3d4e5f60718293a4b5c",
+        "name": "f2a8613772469d6e1418",
         "field": {
           "Measure": {
             "Expression": {
@@ -598,7 +722,7 @@
         "type": "Advanced"
       },
       {
-        "name": "d4e5f60718293a4b5c6d",
+        "name": "d9fd00122253ae08e3b1",
         "field": {
           "Measure": {
             "Expression": {
@@ -612,7 +736,7 @@
         "type": "Advanced"
       },
       {
-        "name": "e5f60718293a4b5c6d7e",
+        "name": "b33258ddcd64b9b08503",
         "field": {
           "Measure": {
             "Expression": {
@@ -624,6 +748,20 @@
           }
         },
         "type": "Advanced"
+      },
+      {
+        "name": "a64626c600a3db773302",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "public dim_estados"
+              }
+            },
+            "Property": "uf"
+          }
+        },
+        "type": "Categorical"
       }
     ]
   }

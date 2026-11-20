@@ -224,6 +224,7 @@ table 'public fato_editais'
 	column link_pncp
 		dataType: string
 		lineageTag: 837765e9-08d4-4490-9fcb-7cf73d0c1396
+		dataCategory: WebUrl
 		summarizeBy: none
 		sourceColumn: link_pncp
 

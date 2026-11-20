@@ -2,9 +2,10 @@ table _Medidas
 	lineageTag: 2a44900d-ad39-429e-8ddb-a363555a19f8
 
 	measure 'Volume Financeiro Estimado' = SUM('public fato_editais'[valor_estimado])
-		formatString: "R$"\ #,0.00;-"R$"\ #,0.00;"R$"\ #,0.00
 		displayFolder: 1. Visão Geral
 		lineageTag: 35e0b1b9-4923-466e-80c5-a5d93a1d6af7
+
+		formatStringDefinition = VAR _v = ABS(SELECTEDMEASURE()) RETURN SWITCH(TRUE(), _v >= 1000000000, """R$ ""#,##0,,,.##"" Bi"";-""R$ ""#,##0,,,.##"" Bi"";""R$ 0""", _v >= 1000000, """R$ ""#,##0,,.#"" Mi"";-""R$ ""#,##0,,.#"" Mi"";""R$ 0""", _v >= 1000, """R$ ""#,##0,.#"" Mil"";-""R$ ""#,##0,.#"" Mil"";""R$ 0""", """R$ ""#,##0.00;-""R$ ""#,##0.00;""R$ 0""")
 
 	measure 'Volume de Processos Abertos' = COUNTROWS('public fato_editais')
 		formatString: #,0
@@ -34,9 +35,10 @@ table _Medidas
 			    [Volume Financeiro Estimado],
 			    KEEPFILTERS('public dim_orgaos'[esfera] = "Municipal (Prefeitura)")
 			)
-		formatString: "R$"\ #,0.00;-"R$"\ #,0.00;"R$"\ #,0.00
 		displayFolder: 2. Setores e Esferas
 		lineageTag: b9a5c1f2-fc9f-49dd-8296-153649db620c
+
+		formatStringDefinition = VAR _v = ABS(SELECTEDMEASURE()) RETURN SWITCH(TRUE(), _v >= 1000000000, """R$ ""#,##0,,,.##"" Bi"";-""R$ ""#,##0,,,.##"" Bi"";""R$ 0""", _v >= 1000000, """R$ ""#,##0,,.#"" Mi"";-""R$ ""#,##0,,.#"" Mi"";""R$ 0""", _v >= 1000, """R$ ""#,##0,.#"" Mil"";-""R$ ""#,##0,.#"" Mil"";""R$ 0""", """R$ ""#,##0.00;-""R$ ""#,##0.00;""R$ 0""")
 
 	measure '% Poder Executivo' =
 			DIVIDE(
@@ -175,18 +177,20 @@ table _Medidas
 			    [Volume Financeiro Estimado],
 			    KEEPFILTERS('public fato_editais'[tipo_compra] = "Disputa Aberta (Com Disputa)")
 			)
-		formatString: "R$"\ #,0.00;-"R$"\ #,0.00;"R$"\ #,0.00
 		displayFolder: 5. Complementares (Gráficos)
 		lineageTag: 68cd253d-d6a9-4863-81cf-f2596aecb73f
+
+		formatStringDefinition = VAR _v = ABS(SELECTEDMEASURE()) RETURN SWITCH(TRUE(), _v >= 1000000000, """R$ ""#,##0,,,.##"" Bi"";-""R$ ""#,##0,,,.##"" Bi"";""R$ 0""", _v >= 1000000, """R$ ""#,##0,,.#"" Mi"";-""R$ ""#,##0,,.#"" Mi"";""R$ 0""", _v >= 1000, """R$ ""#,##0,.#"" Mil"";-""R$ ""#,##0,.#"" Mil"";""R$ 0""", """R$ ""#,##0.00;-""R$ ""#,##0.00;""R$ 0""")
 
 	measure 'Volume em Compra Direta' =
 			CALCULATE(
 			    [Volume Financeiro Estimado],
 			    KEEPFILTERS('public fato_editais'[tipo_compra] = "Compra Direta (Sem Disputa)")
 			)
-		formatString: "R$"\ #,0.00;-"R$"\ #,0.00;"R$"\ #,0.00
 		displayFolder: 5. Complementares (Gráficos)
 		lineageTag: e54e2a11-2c94-49ae-b3d8-0820d7ce5ee5
+
+		formatStringDefinition = VAR _v = ABS(SELECTEDMEASURE()) RETURN SWITCH(TRUE(), _v >= 1000000000, """R$ ""#,##0,,,.##"" Bi"";-""R$ ""#,##0,,,.##"" Bi"";""R$ 0""", _v >= 1000000, """R$ ""#,##0,,.#"" Mi"";-""R$ ""#,##0,,.#"" Mi"";""R$ 0""", _v >= 1000, """R$ ""#,##0,.#"" Mil"";-""R$ ""#,##0,.#"" Mil"";""R$ 0""", """R$ ""#,##0.00;-""R$ ""#,##0.00;""R$ 0""")
 
 	measure 'Taxa de Concorrência (%)' =
 			DIVIDE(
@@ -253,9 +257,10 @@ table _Medidas
 			        && (NOT FiltroMesAtivo || MONTH(MesAtual) IN MesesFiltrados)
 			RETURN
 			IF(DentroPeriodo, COALESCE([Volume Financeiro Estimado], 0))
-		formatString: "R$"\ #,0.00;-"R$"\ #,0.00;"R$"\ #,0.00
 		displayFolder: 5. Complementares (Gráficos)
 		lineageTag: 167ee940-ce87-44b8-8acc-66c653917bbb
+
+		formatStringDefinition = VAR _v = ABS(SELECTEDMEASURE()) RETURN SWITCH(TRUE(), _v >= 1000000000, """R$ ""#,##0,,,.##"" Bi"";-""R$ ""#,##0,,,.##"" Bi"";""R$ 0""", _v >= 1000000, """R$ ""#,##0,,.#"" Mi"";-""R$ ""#,##0,,.#"" Mi"";""R$ 0""", _v >= 1000, """R$ ""#,##0,.#"" Mil"";-""R$ ""#,##0,.#"" Mil"";""R$ 0""", """R$ ""#,##0.00;-""R$ ""#,##0.00;""R$ 0""")
 
 	column Value
 		isHidden

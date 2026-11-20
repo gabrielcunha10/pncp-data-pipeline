@@ -14,6 +14,9 @@ table 'public dim_municipios'
 		lineageTag: f060c4d8-b951-424e-97ce-9ef398e1a6c7
 		summarizeBy: none
 		sourceColumn: uf
+		sortByColumn: uf_ordem
+
+		changedProperty = SortByColumn
 
 		annotation SummarizationSetBy = Automatic
 
@@ -77,6 +80,32 @@ table 'public dim_municipios'
 		lineageTag: f4e319da-0b99-4464-8c96-a078a4e127e9
 		summarizeBy: none
 		sourceColumn: faixa_pib_per_capita
+		sortByColumn: faixa_pib_ordem
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column uf_ordem = IF(LEFT('public dim_municipios'[codigo_ibge], 2) = "26", 1, 2)
+		isHidden
+		formatString: 0
+		lineageTag: a7d4c8e2-91f0-4b3a-8c5d-202611200002
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column faixa_pib_ordem = SWITCH(TRUE(), 'public dim_municipios'[pib_per_capita_reais] <= 12500, 4, 'public dim_municipios'[pib_per_capita_reais] <= 15000, 3, 'public dim_municipios'[pib_per_capita_reais] <= 20000, 2, 1)
+		isHidden
+		formatString: 0
+		lineageTag: a7d4c8e2-91f0-4b3a-8c5d-202611200003
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column localizacao = IF('public dim_municipios'[eh_capital], "Capital", "Interior")
+		dataType: string
+		lineageTag: a7d4c8e2-91f0-4b3a-8c5d-202611200004
+		summarizeBy: none
 
 		annotation SummarizationSetBy = Automatic
 
