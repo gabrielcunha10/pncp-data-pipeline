@@ -153,6 +153,20 @@
           "selector": {
             "metadata": "_Medidas.Volume Financeiro Estimado"
           }
+        },
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "15D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "id": "default"
+          }
         }
       ],
       "outline": [
@@ -570,5 +584,23 @@
       ]
     },
     "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "47808d4beacc2cce7966",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "_Medidas"
+              }
+            },
+            "Property": "% Poder Executivo"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
   }
 }

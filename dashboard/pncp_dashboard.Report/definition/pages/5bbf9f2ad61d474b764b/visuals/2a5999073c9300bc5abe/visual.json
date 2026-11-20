@@ -330,6 +330,20 @@
           "selector": {
             "metadata": "_Medidas.Volume Financeiro Estimado"
           }
+        },
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "15D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "id": "default"
+          }
         }
       ]
     },
@@ -585,5 +599,23 @@
       ]
     },
     "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "2ee76b042d94ece4b96e",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "_Medidas"
+              }
+            },
+            "Property": "Volume de Processos Abertos"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
   }
 }

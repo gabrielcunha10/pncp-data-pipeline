@@ -256,6 +256,20 @@
           "selector": {
             "metadata": "_Medidas.Volume Financeiro Estimado"
           }
+        },
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "15D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "id": "default"
+          }
         }
       ],
       "value": [
@@ -559,5 +573,23 @@
       ]
     },
     "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "e3afac2ad3d11e79c6d6",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "_Medidas"
+              }
+            },
+            "Property": "Ticket Médio por Compra"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
   }
 }

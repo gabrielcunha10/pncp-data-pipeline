@@ -256,6 +256,20 @@
           "selector": {
             "metadata": "_Medidas.Volume Financeiro Estimado"
           }
+        },
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "15D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "id": "default"
+          }
         }
       ],
       "value": [
@@ -559,5 +573,23 @@
       ]
     },
     "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "588a892532b05d9cd7ae",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "_Medidas"
+              }
+            },
+            "Property": "% Compras Sem Disputa"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
   }
 }

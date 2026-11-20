@@ -153,6 +153,20 @@
           "selector": {
             "metadata": "_Medidas.Volume Financeiro Estimado"
           }
+        },
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "15D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "id": "default"
+          }
         }
       ],
       "outline": [
@@ -570,5 +584,23 @@
       ]
     },
     "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "6d18d6f7b2c215cc2503",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "_Medidas"
+              }
+            },
+            "Property": "Intensidade no PIB Local (%)"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
   }
 }
