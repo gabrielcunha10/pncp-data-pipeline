@@ -50,24 +50,6 @@
             }
           ]
         },
-        "Y": {
-          "projections": [
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Medidas"
-                    }
-                  },
-                  "Property": "Volume Financeiro Estimado"
-                }
-              },
-              "queryRef": "_Medidas.Volume Financeiro Estimado",
-              "nativeQueryRef": "Volume Financeiro Estimado"
-            }
-          ]
-        },
         "Tooltips": {
           "projections": [
             {
@@ -111,6 +93,24 @@
               },
               "queryRef": "_Medidas.Ticket Médio por Compra",
               "nativeQueryRef": "Ticket Médio por Compra"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Medidas"
+                    }
+                  },
+                  "Property": "Volume Financeiro Estimado"
+                }
+              },
+              "queryRef": "_Medidas.Volume Financeiro Estimado",
+              "nativeQueryRef": "Volume Financeiro Estimado"
             }
           ]
         }
@@ -338,7 +338,7 @@
             "fontSize": {
               "expr": {
                 "Literal": {
-                  "Value": "9D"
+                  "Value": "8D"
                 }
               }
             },
@@ -818,6 +818,20 @@
           }
         },
         "type": "Advanced"
+      },
+      {
+        "name": "f47e18d2b0e9c8630337",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "public fato_editais"
+              }
+            },
+            "Property": "modalidade_contratacao"
+          }
+        },
+        "type": "Categorical"
       }
     ]
   }

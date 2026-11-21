@@ -273,6 +273,20 @@
                 }
               }
             },
+            "secStart": {
+              "expr": {
+                "Literal": {
+                  "Value": "0D"
+                }
+              }
+            },
+            "secEnd": {
+              "expr": {
+                "Literal": {
+                  "Value": "1.15D"
+                }
+              }
+            },
             "secFontSize": {
               "expr": {
                 "Literal": {
@@ -330,6 +344,21 @@
           "selector": {
             "metadata": "_Medidas.Taxa de Concorrência (%)"
           }
+        },
+        {
+          "properties": {
+            "fill": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#1E3A8A'"
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       ],
       "lineStyles": [
@@ -386,7 +415,7 @@
             "fontSize": {
               "expr": {
                 "Literal": {
-                  "Value": "10D"
+                  "Value": "12D"
                 }
               }
             },
@@ -457,14 +486,14 @@
             "labelPosition": {
               "expr": {
                 "Literal": {
-                  "Value": "'Above'"
+                  "Value": "'Under'"
                 }
               }
             },
             "fontSize": {
               "expr": {
                 "Literal": {
-                  "Value": "10D"
+                  "Value": "12D"
                 }
               }
             },

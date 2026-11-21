@@ -40,6 +40,12 @@ table _Medidas
 
 		formatStringDefinition = VAR _v = ABS(SELECTEDMEASURE()) RETURN SWITCH(TRUE(), _v >= 1000000000, """R$ ""#,##0,,,.##"" Bi"";-""R$ ""#,##0,,,.##"" Bi"";""R$ 0""", _v >= 1000000, """R$ ""#,##0,,.#"" Mi"";-""R$ ""#,##0,,.#"" Mi"";""R$ 0""", _v >= 1000, """R$ ""#,##0,.#"" Mil"";-""R$ ""#,##0,.#"" Mil"";""R$ 0""", """R$ ""#,##0.00;-""R$ ""#,##0.00;""R$ 0""")
 
+	measure 'Volume Financeiro (R$)' = [Volume Financeiro Estimado]
+		displayFolder: 2. Setores e Esferas
+		lineageTag: 8c4e1a2b-5d73-4f19-9a6c-3b8d2e4f1a01
+
+		formatStringDefinition = VAR _v = ABS(SELECTEDMEASURE()) RETURN SWITCH(TRUE(), _v >= 1000000000, "#,##0,,,.##""B"";-#,##0,,,.##""B"";""0""", _v >= 1000000, "#,##0,,.#""M"";-#,##0,,.#""M"";""0""", _v >= 1000, "#,##0,.#""K"";-#,##0,.#""K"";""0""", "#,##0;-#,##0;""0""")
+
 	measure '% Poder Executivo' =
 			DIVIDE(
 			    CALCULATE(

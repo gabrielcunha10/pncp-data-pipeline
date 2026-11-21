@@ -60,6 +60,20 @@
                       "Entity": "_Medidas"
                     }
                   },
+                  "Property": "Volume Financeiro Estimado"
+                }
+              },
+              "queryRef": "_Medidas.Volume Financeiro Estimado",
+              "nativeQueryRef": "Volume Financeiro Estimado"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Medidas"
+                    }
+                  },
                   "Property": "% Participação Orçamento"
                 }
               },
@@ -106,11 +120,11 @@
                       "Entity": "_Medidas"
                     }
                   },
-                  "Property": "Volume Financeiro Estimado"
+                  "Property": "Volume Financeiro (R$)"
                 }
               },
-              "queryRef": "_Medidas.Volume Financeiro Estimado",
-              "nativeQueryRef": "Volume Financeiro Estimado"
+              "queryRef": "_Medidas.Volume Financeiro (R$)",
+              "nativeQueryRef": "Volume Financeiro (R$)"
             }
           ]
         }
@@ -125,7 +139,7 @@
                     "Entity": "_Medidas"
                   }
                 },
-                "Property": "Volume Financeiro Estimado"
+                "Property": "Volume Financeiro (R$)"
               }
             },
             "direction": "Descending"
@@ -231,7 +245,7 @@
             "maxMarginFactor": {
               "expr": {
                 "Literal": {
-                  "Value": "33D"
+                  "Value": "28D"
                 }
               }
             }
@@ -387,21 +401,7 @@
             "enableDetailDataLabel": {
               "expr": {
                 "Literal": {
-                  "Value": "true"
-                }
-              }
-            },
-            "detailContentType": {
-              "expr": {
-                "Literal": {
-                  "Value": "'Percent of total'"
-                }
-              }
-            },
-            "labelContentLayout": {
-              "expr": {
-                "Literal": {
-                  "Value": "'MultiLine'"
+                  "Value": "false"
                 }
               }
             },
@@ -429,7 +429,7 @@
             "fontSize": {
               "expr": {
                 "Literal": {
-                  "Value": "9D"
+                  "Value": "10D"
                 }
               }
             },
@@ -446,31 +446,6 @@
                   "expr": {
                     "Literal": {
                       "Value": "'#FFFFFF'"
-                    }
-                  }
-                }
-              }
-            },
-            "detailFontSize": {
-              "expr": {
-                "Literal": {
-                  "Value": "8D"
-                }
-              }
-            },
-            "detailLabelPrecision": {
-              "expr": {
-                "Literal": {
-                  "Value": "1D"
-                }
-              }
-            },
-            "detailColor": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "Literal": {
-                      "Value": "'#E2E8F0'"
                     }
                   }
                 }
@@ -703,6 +678,20 @@
               }
             },
             "Property": "Volume Financeiro Estimado"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "55ee61f58104717a1bcf",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "_Medidas"
+              }
+            },
+            "Property": "Volume Financeiro (R$)"
           }
         },
         "type": "Advanced"
