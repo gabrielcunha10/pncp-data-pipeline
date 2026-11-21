@@ -338,7 +338,7 @@
             "fontSize": {
               "expr": {
                 "Literal": {
-                  "Value": "12D"
+                  "Value": "14D"
                 }
               }
             },
@@ -807,6 +807,20 @@
           }
         },
         "type": "Advanced"
+      },
+      {
+        "name": "03766560a69c17959032",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "public dim_municipios"
+              }
+            },
+            "Property": "municipio"
+          }
+        },
+        "type": "Categorical"
       }
     ]
   }

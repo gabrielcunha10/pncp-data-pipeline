@@ -303,7 +303,28 @@
             "detailFontSize": {
               "expr": {
                 "Literal": {
-                  "Value": "12D"
+                  "Value": "15D"
+                }
+              }
+            },
+            "enableValueDataLabel": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            },
+            "enableDetailDataLabel": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "detailLabelPrecision": {
+              "expr": {
+                "Literal": {
+                  "Value": "1L"
                 }
               }
             }

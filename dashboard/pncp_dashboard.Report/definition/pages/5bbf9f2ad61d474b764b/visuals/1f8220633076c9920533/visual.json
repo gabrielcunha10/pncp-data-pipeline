@@ -1,13 +1,13 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
-  "name": "2254df58c5eeda6ad37a",
+  "name": "1f8220633076c9920533",
   "position": {
-    "x": 1695.31914893617,
+    "x": 1449.7264437689967,
     "y": 67.112462006079028,
-    "z": 11000,
+    "z": 15003,
     "height": 74.40729483282675,
     "width": 215.92705167173253,
-    "tabOrder": 11000
+    "tabOrder": 15003
   },
   "visual": {
     "visualType": "slicer",
@@ -20,14 +20,14 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "public dim_orgaos"
+                      "Entity": "public fato_editais"
                     }
                   },
-                  "Property": "esfera"
+                  "Property": "setor_area"
                 }
               },
-              "queryRef": "public dim_orgaos.esfera",
-              "nativeQueryRef": "esfera",
+              "queryRef": "public fato_editais.setor_area",
+              "nativeQueryRef": "setor_area",
               "active": true
             }
           ]
@@ -35,33 +35,20 @@
       }
     },
     "objects": {
-      "data": [
-        {
-          "properties": {
-            "mode": {
-              "expr": {
-                "Literal": {
-                  "Value": "'Dropdown'"
-                }
-              }
-            }
-          }
-        }
-      ],
       "header": [
         {
           "properties": {
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Esfera'"
+                  "Value": "'Setor'"
                 }
               }
             },
             "textSize": {
               "expr": {
                 "Literal": {
-                  "Value": "20D"
+                  "Value": "24D"
                 }
               }
             },
@@ -85,7 +72,7 @@
             "textSize": {
               "expr": {
                 "Literal": {
-                  "Value": "12.6D"
+                  "Value": "14D"
                 }
               }
             },
@@ -98,6 +85,32 @@
                       "Percent": 0
                     }
                   }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "data": [
+        {
+          "properties": {
+            "mode": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Dropdown'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "general": [
+        {
+          "properties": {
+            "selfFilterEnabled": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
                 }
               }
             }
@@ -348,6 +361,11 @@
           }
         }
       ]
+    },
+    "syncGroup": {
+      "groupName": "setor_area",
+      "fieldChanges": true,
+      "filterChanges": true
     },
     "drillFilterOtherVisuals": true
   }

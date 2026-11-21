@@ -1,13 +1,13 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
-  "name": "eeb0b469869340076db5",
+  "name": "f54c89ad3010b44d055d",
   "position": {
-    "x": 1450.2127659574467,
+    "x": 958.54103343465044,
     "y": 67.112462006079028,
-    "z": 11000,
+    "z": 15001,
     "height": 74.40729483282675,
     "width": 215.92705167173253,
-    "tabOrder": 11000
+    "tabOrder": 15001
   },
   "visual": {
     "visualType": "slicer",
@@ -20,35 +20,99 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "public fato_editais"
+                      "Entity": "public dim_municipios"
                     }
                   },
-                  "Property": "setor_area"
+                  "Property": "uf"
                 }
               },
-              "queryRef": "public fato_editais.setor_area",
-              "nativeQueryRef": "setor_area",
+              "queryRef": "public dim_municipios.uf",
+              "nativeQueryRef": "uf",
               "active": true
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "public dim_municipios"
+                    }
+                  },
+                  "Property": "municipio"
+                }
+              },
+              "queryRef": "public dim_municipios.municipio",
+              "nativeQueryRef": "municipio",
+              "active": false
             }
           ]
         }
       }
     },
+    "expansionStates": [
+      {
+        "roles": [
+          "Values"
+        ],
+        "levels": [
+          {
+            "queryRefs": [
+              "public dim_municipios.uf"
+            ],
+            "isCollapsed": true,
+            "identityKeys": [
+              {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "public dim_municipios"
+                    }
+                  },
+                  "Property": "uf"
+                }
+              }
+            ],
+            "isPinned": true
+          },
+          {
+            "queryRefs": [
+              "public dim_municipios.municipio"
+            ],
+            "isCollapsed": true,
+            "isPinned": true
+          }
+        ],
+        "root": {}
+      }
+    ],
     "objects": {
+      "data": [
+        {
+          "properties": {
+            "mode": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Dropdown'"
+                }
+              }
+            }
+          }
+        }
+      ],
       "header": [
         {
           "properties": {
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Setor'"
+                  "Value": "'UF/Município'"
                 }
               }
             },
             "textSize": {
               "expr": {
                 "Literal": {
-                  "Value": "20D"
+                  "Value": "24D"
                 }
               }
             },
@@ -60,44 +124,6 @@
                       "Value": "'#0F172A'"
                     }
                   }
-                }
-              }
-            }
-          }
-        }
-      ],
-      "items": [
-        {
-          "properties": {
-            "background": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "ThemeDataColor": {
-                      "ColorId": 0,
-                      "Percent": 0
-                    }
-                  }
-                }
-              }
-            },
-            "textSize": {
-              "expr": {
-                "Literal": {
-                  "Value": "12.6D"
-                }
-              }
-            }
-          }
-        }
-      ],
-      "data": [
-        {
-          "properties": {
-            "mode": {
-              "expr": {
-                "Literal": {
-                  "Value": "'Dropdown'"
                 }
               }
             }
@@ -116,12 +142,44 @@
             }
           }
         }
+      ],
+      "items": [
+        {
+          "properties": {
+            "textSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "14D"
+                }
+              }
+            },
+            "background": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "ThemeDataColor": {
+                      "ColorId": 0,
+                      "Percent": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       ]
     },
     "visualContainerObjects": {
       "title": [
         {
           "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "''"
+                }
+              }
+            },
             "show": {
               "expr": {
                 "Literal": {
@@ -160,6 +218,64 @@
               "expr": {
                 "Literal": {
                   "Value": "'12'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "background": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            },
+            "transparency": {
+              "expr": {
+                "Literal": {
+                  "Value": "0D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "border": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            },
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#0F172A'"
+                    }
+                  }
+                }
+              }
+            },
+            "radius": {
+              "expr": {
+                "Literal": {
+                  "Value": "6D"
+                }
+              }
+            },
+            "width": {
+              "expr": {
+                "Literal": {
+                  "Value": "1D"
                 }
               }
             }
@@ -214,26 +330,6 @@
           }
         }
       ],
-      "background": [
-        {
-          "properties": {
-            "show": {
-              "expr": {
-                "Literal": {
-                  "Value": "false"
-                }
-              }
-            },
-            "transparency": {
-              "expr": {
-                "Literal": {
-                  "Value": "0D"
-                }
-              }
-            }
-          }
-        }
-      ],
       "padding": [
         {
           "properties": {
@@ -262,44 +358,6 @@
               "expr": {
                 "Literal": {
                   "Value": "0D"
-                }
-              }
-            }
-          }
-        }
-      ],
-      "border": [
-        {
-          "properties": {
-            "show": {
-              "expr": {
-                "Literal": {
-                  "Value": "false"
-                }
-              }
-            },
-            "color": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "Literal": {
-                      "Value": "'#0F172A'"
-                    }
-                  }
-                }
-              }
-            },
-            "radius": {
-              "expr": {
-                "Literal": {
-                  "Value": "6D"
-                }
-              }
-            },
-            "width": {
-              "expr": {
-                "Literal": {
-                  "Value": "1D"
                 }
               }
             }
@@ -363,7 +421,7 @@
       ]
     },
     "syncGroup": {
-      "groupName": "setor_area",
+      "groupName": "uf",
       "fieldChanges": true,
       "filterChanges": true
     },

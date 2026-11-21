@@ -50,24 +50,6 @@
             }
           ]
         },
-        "Y": {
-          "projections": [
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Medidas"
-                    }
-                  },
-                  "Property": "Volume Financeiro Estimado"
-                }
-              },
-              "queryRef": "_Medidas.Volume Financeiro Estimado",
-              "nativeQueryRef": "Volume Financeiro Estimado"
-            }
-          ]
-        },
         "Tooltips": {
           "projections": [
             {
@@ -111,6 +93,24 @@
               },
               "queryRef": "_Medidas.Ticket Médio por Compra",
               "nativeQueryRef": "Ticket Médio por Compra"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Medidas"
+                    }
+                  },
+                  "Property": "Volume Financeiro Estimado"
+                }
+              },
+              "queryRef": "_Medidas.Volume Financeiro Estimado",
+              "nativeQueryRef": "Volume Financeiro Estimado"
             }
           ]
         }
@@ -206,7 +206,7 @@
             "fontSize": {
               "expr": {
                 "Literal": {
-                  "Value": "11D"
+                  "Value": "12D"
                 }
               }
             },
@@ -220,7 +220,7 @@
             "innerPadding": {
               "expr": {
                 "Literal": {
-                  "Value": "15D"
+                  "Value": "33L"
                 }
               }
             },
@@ -244,7 +244,7 @@
             "show": {
               "expr": {
                 "Literal": {
-                  "Value": "true"
+                  "Value": "false"
                 }
               }
             },
@@ -258,7 +258,7 @@
             "fontSize": {
               "expr": {
                 "Literal": {
-                  "Value": "11D"
+                  "Value": "8D"
                 }
               }
             },
@@ -296,7 +296,7 @@
             "labelPosition": {
               "expr": {
                 "Literal": {
-                  "Value": "'OutsideEnd'"
+                  "Value": "'Auto'"
                 }
               }
             },
@@ -338,7 +338,7 @@
             "fontSize": {
               "expr": {
                 "Literal": {
-                  "Value": "9D"
+                  "Value": "11D"
                 }
               }
             },
@@ -357,6 +357,13 @@
                       "Value": "'#0F172A'"
                     }
                   }
+                }
+              }
+            },
+            "labelOrientation": {
+              "expr": {
+                "Literal": {
+                  "Value": "1D"
                 }
               }
             }
@@ -444,6 +451,19 @@
                 }
               }
             ]
+          }
+        }
+      ],
+      "layout": [
+        {
+          "properties": {
+            "clusteredGapSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "75D"
+                }
+              }
+            }
           }
         }
       ]

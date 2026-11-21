@@ -1,13 +1,13 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
-  "name": "55d2dc7c0017cd056509",
+  "name": "01257663132b0054acd9",
   "position": {
-    "x": 1450.2127659574467,
+    "x": 1695.3191489361698,
     "y": 67.112462006079028,
-    "z": 10000,
+    "z": 15004,
     "height": 74.40729483282675,
     "width": 215.92705167173253,
-    "tabOrder": 10000
+    "tabOrder": 15004
   },
   "visual": {
     "visualType": "slicer",
@@ -20,14 +20,14 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "public fato_editais"
+                      "Entity": "public dim_orgaos"
                     }
                   },
-                  "Property": "setor_area"
+                  "Property": "esfera"
                 }
               },
-              "queryRef": "public fato_editais.setor_area",
-              "nativeQueryRef": "setor_area",
+              "queryRef": "public dim_orgaos.esfera",
+              "nativeQueryRef": "esfera",
               "active": true
             }
           ]
@@ -35,20 +35,33 @@
       }
     },
     "objects": {
+      "data": [
+        {
+          "properties": {
+            "mode": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Dropdown'"
+                }
+              }
+            }
+          }
+        }
+      ],
       "header": [
         {
           "properties": {
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Setor'"
+                  "Value": "'Esfera'"
                 }
               }
             },
             "textSize": {
               "expr": {
                 "Literal": {
-                  "Value": "20D"
+                  "Value": "24D"
                 }
               }
             },
@@ -72,7 +85,7 @@
             "textSize": {
               "expr": {
                 "Literal": {
-                  "Value": "12.6D"
+                  "Value": "14D"
                 }
               }
             },
@@ -85,32 +98,6 @@
                       "Percent": 0
                     }
                   }
-                }
-              }
-            }
-          }
-        }
-      ],
-      "data": [
-        {
-          "properties": {
-            "mode": {
-              "expr": {
-                "Literal": {
-                  "Value": "'Dropdown'"
-                }
-              }
-            }
-          }
-        }
-      ],
-      "general": [
-        {
-          "properties": {
-            "selfFilterEnabled": {
-              "expr": {
-                "Literal": {
-                  "Value": "true"
                 }
               }
             }
@@ -361,6 +348,11 @@
           }
         }
       ]
+    },
+    "syncGroup": {
+      "groupName": "esfera",
+      "fieldChanges": true,
+      "filterChanges": true
     },
     "drillFilterOtherVisuals": true
   }

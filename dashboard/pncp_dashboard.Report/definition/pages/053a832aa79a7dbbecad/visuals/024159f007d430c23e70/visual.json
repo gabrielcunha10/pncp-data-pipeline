@@ -2,7 +2,7 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
   "name": "024159f007d430c23e70",
   "position": {
-    "x": 1695.31914893617,
+    "x": 1695.3191489361698,
     "y": 67.112462006079028,
     "z": 12000,
     "height": 74.40729483282675,
@@ -61,7 +61,7 @@
             "textSize": {
               "expr": {
                 "Literal": {
-                  "Value": "20D"
+                  "Value": "24D"
                 }
               }
             },
@@ -85,7 +85,7 @@
             "textSize": {
               "expr": {
                 "Literal": {
-                  "Value": "12.6D"
+                  "Value": "14D"
                 }
               }
             },
@@ -355,5 +355,23 @@
       "filterChanges": true
     },
     "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "88f0a2c4485044810668",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "public dim_orgaos"
+              }
+            },
+            "Property": "esfera"
+          }
+        },
+        "type": "Categorical"
+      }
+    ]
   }
 }

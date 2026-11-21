@@ -2,7 +2,7 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
   "name": "9ba49c6705670aeab0d2",
   "position": {
-    "x": 1205.1063829787233,
+    "x": 1204.1337386018236,
     "y": 67.112462006079028,
     "z": 10000,
     "height": 74.40729483282675,
@@ -43,7 +43,7 @@
               },
               "queryRef": "public fato_editais.mes_nome",
               "nativeQueryRef": "mes_nome",
-              "active": true
+              "active": false
             }
           ]
         }
@@ -82,30 +82,7 @@
             "isPinned": true
           }
         ],
-        "root": {
-          "children": [
-            {
-              "identityValues": [
-                {
-                  "Literal": {
-                    "Value": "2026L"
-                  }
-                }
-              ],
-              "isToggled": true
-            },
-            {
-              "identityValues": [
-                {
-                  "Literal": {
-                    "Value": "2025L"
-                  }
-                }
-              ],
-              "isToggled": true
-            }
-          ]
-        }
+        "root": {}
       }
     ],
     "objects": {
@@ -122,7 +99,7 @@
             "textSize": {
               "expr": {
                 "Literal": {
-                  "Value": "20D"
+                  "Value": "24D"
                 }
               }
             },
@@ -146,7 +123,7 @@
             "textSize": {
               "expr": {
                 "Literal": {
-                  "Value": "12.6D"
+                  "Value": "14D"
                 }
               }
             },
@@ -429,5 +406,37 @@
       "filterChanges": true
     },
     "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "c951ba7891007c98b7d6",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "public fato_editais"
+              }
+            },
+            "Property": "ano_publicacao"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "1df145079480e6304339",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "public fato_editais"
+              }
+            },
+            "Property": "mes_nome"
+          }
+        },
+        "type": "Categorical"
+      }
+    ]
   }
 }

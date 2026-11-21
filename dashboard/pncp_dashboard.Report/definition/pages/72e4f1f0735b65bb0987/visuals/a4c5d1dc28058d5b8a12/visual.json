@@ -1,13 +1,13 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
-  "name": "cd7cf153c95bb916456e",
+  "name": "a4c5d1dc28058d5b8a12",
   "position": {
-    "x": 1205.1063829787233,
+    "x": 1449.7264437689967,
     "y": 67.112462006079028,
-    "z": 10000,
+    "z": 15003,
     "height": 74.40729483282675,
     "width": 215.92705167173253,
-    "tabOrder": 10000
+    "tabOrder": 15003
   },
   "visual": {
     "visualType": "slicer",
@@ -23,91 +23,17 @@
                       "Entity": "public fato_editais"
                     }
                   },
-                  "Property": "ano_publicacao"
+                  "Property": "setor_area"
                 }
               },
-              "queryRef": "public fato_editais.ano_publicacao",
-              "nativeQueryRef": "ano_publicacao",
-              "active": true
-            },
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "public fato_editais"
-                    }
-                  },
-                  "Property": "mes_nome"
-                }
-              },
-              "queryRef": "public fato_editais.mes_nome",
-              "nativeQueryRef": "mes_nome",
+              "queryRef": "public fato_editais.setor_area",
+              "nativeQueryRef": "setor_area",
               "active": true
             }
           ]
         }
       }
     },
-    "expansionStates": [
-      {
-        "roles": [
-          "Values"
-        ],
-        "levels": [
-          {
-            "queryRefs": [
-              "public fato_editais.ano_publicacao"
-            ],
-            "isCollapsed": true,
-            "identityKeys": [
-              {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "public fato_editais"
-                    }
-                  },
-                  "Property": "ano_publicacao"
-                }
-              }
-            ],
-            "isPinned": true
-          },
-          {
-            "queryRefs": [
-              "public fato_editais.mes_nome"
-            ],
-            "isCollapsed": true,
-            "isPinned": true
-          }
-        ],
-        "root": {
-          "children": [
-            {
-              "identityValues": [
-                {
-                  "Literal": {
-                    "Value": "2026L"
-                  }
-                }
-              ],
-              "isToggled": true
-            },
-            {
-              "identityValues": [
-                {
-                  "Literal": {
-                    "Value": "2025L"
-                  }
-                }
-              ],
-              "isToggled": true
-            }
-          ]
-        }
-      }
-    ],
     "objects": {
       "header": [
         {
@@ -115,14 +41,14 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Ano/Mês'"
+                  "Value": "'Setor'"
                 }
               }
             },
             "textSize": {
               "expr": {
                 "Literal": {
-                  "Value": "20D"
+                  "Value": "24D"
                 }
               }
             },
@@ -146,7 +72,7 @@
             "textSize": {
               "expr": {
                 "Literal": {
-                  "Value": "12.6D"
+                  "Value": "14D"
                 }
               }
             },
@@ -172,6 +98,19 @@
               "expr": {
                 "Literal": {
                   "Value": "'Dropdown'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "general": [
+        {
+          "properties": {
+            "selfFilterEnabled": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
                 }
               }
             }
@@ -424,7 +363,7 @@
       ]
     },
     "syncGroup": {
-      "groupName": "ano_publicacao",
+      "groupName": "setor_area",
       "fieldChanges": true,
       "filterChanges": true
     },

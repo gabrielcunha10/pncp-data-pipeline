@@ -5,7 +5,7 @@
     "x": 221.66666666666669,
     "y": 365,
     "z": 13000,
-    "height": 260,
+    "height": 315,
     "width": 822,
     "tabOrder": 13000
   },
@@ -206,7 +206,7 @@
             "fontSize": {
               "expr": {
                 "Literal": {
-                  "Value": "11D"
+                  "Value": "12D"
                 }
               }
             },
@@ -224,7 +224,7 @@
             "innerPadding": {
               "expr": {
                 "Literal": {
-                  "Value": "15D"
+                  "Value": "35D"
                 }
               }
             },
@@ -232,6 +232,13 @@
               "expr": {
                 "Literal": {
                   "Value": "35L"
+                }
+              }
+            },
+            "preferredCategoryWidth": {
+              "expr": {
+                "Literal": {
+                  "Value": "34D"
                 }
               }
             }
@@ -258,7 +265,7 @@
             "fontSize": {
               "expr": {
                 "Literal": {
-                  "Value": "11D"
+                  "Value": "12D"
                 }
               }
             },
@@ -338,7 +345,7 @@
             "fontSize": {
               "expr": {
                 "Literal": {
-                  "Value": "8D"
+                  "Value": "14D"
                 }
               }
             },

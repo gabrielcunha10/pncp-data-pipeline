@@ -2,7 +2,7 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
   "name": "6a6d08c6888308d18ee5",
   "position": {
-    "x": 1450.2127659574467,
+    "x": 1449.7264437689967,
     "y": 67.112462006079028,
     "z": 11000,
     "height": 74.40729483282675,
@@ -48,7 +48,7 @@
             "textSize": {
               "expr": {
                 "Literal": {
-                  "Value": "20D"
+                  "Value": "24D"
                 }
               }
             },
@@ -72,7 +72,7 @@
             "textSize": {
               "expr": {
                 "Literal": {
-                  "Value": "12.6D"
+                  "Value": "14D"
                 }
               }
             },
@@ -368,5 +368,23 @@
       "filterChanges": true
     },
     "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "215866d137196b88c51a",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "public fato_editais"
+              }
+            },
+            "Property": "setor_area"
+          }
+        },
+        "type": "Categorical"
+      }
+    ]
   }
 }

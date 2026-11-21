@@ -1,13 +1,13 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
-  "name": "07ed306119b73589c40c",
+  "name": "e1f0bfc376dda167c733",
   "position": {
-    "x": 1205.1063829787233,
+    "x": 1204.1337386018236,
     "y": 67.112462006079028,
-    "z": 9000,
+    "z": 15002,
     "height": 74.40729483282675,
     "width": 215.92705167173253,
-    "tabOrder": 9000
+    "tabOrder": 15002
   },
   "visual": {
     "visualType": "slicer",
@@ -43,7 +43,7 @@
               },
               "queryRef": "public fato_editais.mes_nome",
               "nativeQueryRef": "mes_nome",
-              "active": true
+              "active": false
             }
           ]
         }
@@ -82,30 +82,7 @@
             "isPinned": true
           }
         ],
-        "root": {
-          "children": [
-            {
-              "identityValues": [
-                {
-                  "Literal": {
-                    "Value": "2026L"
-                  }
-                }
-              ],
-              "isToggled": true
-            },
-            {
-              "identityValues": [
-                {
-                  "Literal": {
-                    "Value": "2025L"
-                  }
-                }
-              ],
-              "isToggled": true
-            }
-          ]
-        }
+        "root": {}
       }
     ],
     "objects": {
@@ -122,7 +99,7 @@
             "textSize": {
               "expr": {
                 "Literal": {
-                  "Value": "20D"
+                  "Value": "24D"
                 }
               }
             },
@@ -146,7 +123,7 @@
             "textSize": {
               "expr": {
                 "Literal": {
-                  "Value": "12.6D"
+                  "Value": "14D"
                 }
               }
             },
@@ -422,6 +399,11 @@
           }
         }
       ]
+    },
+    "syncGroup": {
+      "groupName": "ano_publicacao",
+      "fieldChanges": true,
+      "filterChanges": true
     },
     "drillFilterOtherVisuals": true
   }

@@ -2,7 +2,7 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
   "name": "794a004921736b40a396",
   "position": {
-    "x": 960,
+    "x": 958.54103343465044,
     "y": 67.112462006079028,
     "z": 9000,
     "height": 74.40729483282675,
@@ -112,7 +112,7 @@
             "textSize": {
               "expr": {
                 "Literal": {
-                  "Value": "20D"
+                  "Value": "24D"
                 }
               }
             },
@@ -149,7 +149,7 @@
             "textSize": {
               "expr": {
                 "Literal": {
-                  "Value": "12.6D"
+                  "Value": "14D"
                 }
               }
             },
@@ -426,5 +426,37 @@
       "filterChanges": true
     },
     "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "6c47ac9002744050d51c",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "public dim_municipios"
+              }
+            },
+            "Property": "uf"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "d407a9b9c410572700b7",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "public dim_municipios"
+              }
+            },
+            "Property": "municipio"
+          }
+        },
+        "type": "Categorical"
+      }
+    ]
   }
 }

@@ -422,6 +422,13 @@
                   }
                 }
               }
+            },
+            "detailFontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "14D"
+                }
+              }
             }
           }
         }
