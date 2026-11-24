@@ -1,5 +1,6 @@
 import os
 import csv
+import json
 import logging
 from logging.handlers import RotatingFileHandler
 from datetime import datetime
@@ -230,7 +231,15 @@ def atualizar_dados_ibge_municipios(
     url_censo = "https://apisidra.ibge.gov.br/values/t/4709/n6/in%20n3%2025,26/v/93/p/2022"
     resp_censo = session.get(url_censo, timeout=30)
     if resp_censo.status_code == 200:
-        for item in resp_censo.json()[1:]:
+        raw_censo = resp_censo.json()
+        try:
+            raw_censo_path = os.path.join(os.path.dirname(os.path.abspath(output_csv)), "dados_brutos_ibge_populacao.json")
+            with open(raw_censo_path, "w", encoding="utf-8") as f:
+                json.dump(raw_censo, f, ensure_ascii=False, indent=2)
+            logger.info(f"Dados brutos de população salvos em: {raw_censo_path}")
+        except Exception as e:
+            logger.warning(f"Não foi possível salvar dados_brutos_ibge_populacao.json: {e}")
+        for item in raw_censo[1:]:
             cod_ibge = str(item.get("D1C", ""))
             val = item.get("V", "")
             if str(val).isdigit():
@@ -260,7 +269,15 @@ def atualizar_dados_ibge_municipios(
         logger.error(f"Falha ao consultar Tabela 5938 de municípios (HTTP {resp_pib.status_code}).")
         return
 
-    dados_pib = resp_pib.json()[1:]
+    dados_pib_raw = resp_pib.json()
+    try:
+        raw_pib_path = os.path.join(os.path.dirname(os.path.abspath(output_csv)), "dados_brutos_ibge_pib.json")
+        with open(raw_pib_path, "w", encoding="utf-8") as f:
+            json.dump(dados_pib_raw, f, ensure_ascii=False, indent=2)
+        logger.info(f"Dados brutos de PIB salvos em: {raw_pib_path}")
+    except Exception as e:
+        logger.warning(f"Não foi possível salvar dados_brutos_ibge_pib.json: {e}")
+    dados_pib = dados_pib_raw[1:]
     linhas_csv = []
     anos_encontrados = set()
 
