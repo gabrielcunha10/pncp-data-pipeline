@@ -1,13 +1,13 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.15.0/schema.json",
   "name": "2a5999073c9300bc5abe",
   "position": {
     "x": 221.66666666666669,
     "y": 198.33333333333334,
-    "z": 12000,
+    "z": 8000,
     "height": 133,
     "width": 388.08510638297872,
-    "tabOrder": 12000
+    "tabOrder": 8000
   },
   "visual": {
     "visualType": "cardVisual",
@@ -599,23 +599,5 @@
       ]
     },
     "drillFilterOtherVisuals": true
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "2ee76b042d94ece4b96e",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "_Medidas"
-              }
-            },
-            "Property": "Volume de Processos Abertos"
-          }
-        },
-        "type": "Advanced"
-      }
-    ]
   }
 }

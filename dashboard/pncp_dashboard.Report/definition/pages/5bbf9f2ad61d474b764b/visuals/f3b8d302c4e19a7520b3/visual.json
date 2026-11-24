@@ -1,13 +1,13 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.15.0/schema.json",
   "name": "f3b8d302c4e19a7520b3",
   "position": {
     "x": 221.66666666666669,
     "y": 705,
-    "z": 15000,
+    "z": 11000,
     "height": 340,
     "width": 1689.7517730496454,
-    "tabOrder": 15000
+    "tabOrder": 11000
   },
   "visual": {
     "visualType": "tableEx",
@@ -624,135 +624,5 @@
       ]
     },
     "drillFilterOtherVisuals": true
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "f3f00000000000000001",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "public dim_estados"
-              }
-            },
-            "Property": "uf"
-          }
-        },
-        "type": "Categorical"
-      },
-      {
-        "name": "f3f00000000000000002",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "public dim_municipios"
-              }
-            },
-            "Property": "municipio"
-          }
-        },
-        "type": "Categorical"
-      },
-      {
-        "name": "f3f00000000000000003",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "public dim_orgaos"
-              }
-            },
-            "Property": "nome_orgao"
-          }
-        },
-        "type": "Categorical"
-      },
-      {
-        "name": "f3f00000000000000004",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "public fato_editais"
-              }
-            },
-            "Property": "modalidade_contratacao"
-          }
-        },
-        "type": "Categorical"
-      },
-      {
-        "name": "f3f00000000000000005",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "public fato_editais"
-              }
-            },
-            "Property": "setor_area"
-          }
-        },
-        "type": "Categorical"
-      },
-      {
-        "name": "f3f00000000000000006",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "public fato_editais"
-              }
-            },
-            "Property": "objeto"
-          }
-        },
-        "type": "Categorical"
-      },
-      {
-        "name": "f3f00000000000000007",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "public fato_editais"
-              }
-            },
-            "Property": "status_valor"
-          }
-        },
-        "type": "Categorical"
-      },
-      {
-        "name": "f3f00000000000000008",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "_Medidas"
-              }
-            },
-            "Property": "Volume Financeiro Estimado"
-          }
-        },
-        "type": "Advanced"
-      },
-      {
-        "name": "f3f00000000000000009",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "public fato_editais"
-              }
-            },
-            "Property": "link_pncp"
-          }
-        },
-        "type": "Categorical"
-      }
-    ]
   }
 }

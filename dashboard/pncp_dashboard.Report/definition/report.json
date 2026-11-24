@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/report/3.3.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/report/3.4.0/schema.json",
   "themeCollection": {
     "baseTheme": {
       "name": "Fluent2-CY26SU10",
@@ -98,6 +98,11 @@
           "type": "Image"
         },
         {
+          "name": "filter_remove_icon_24059547814507343221213.png",
+          "path": "filter_remove_icon_24059547814507343221213.png",
+          "type": "Image"
+        },
+        {
           "name": "inicio_1768158223447946.svg",
           "path": "inicio_1768158223447946.svg",
           "type": "Image"
@@ -152,5 +157,6 @@
     "allowChangeFilterTypes": true,
     "useEnhancedTooltips": true,
     "useDefaultAggregateDisplayName": true
-  }
+  },
+  "linguisticSchemaSyncVersion": 2
 }

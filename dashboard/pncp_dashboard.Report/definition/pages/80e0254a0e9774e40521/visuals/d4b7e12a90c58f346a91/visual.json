@@ -1,13 +1,13 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.15.0/schema.json",
   "name": "d4b7e12a90c58f346a91",
   "position": {
     "x": 1089.4444444444446,
     "y": 715,
-    "z": 15000,
+    "z": 11000,
     "height": 330,
     "width": 821.97399527186758,
-    "tabOrder": 15000
+    "tabOrder": 11000
   },
   "visual": {
     "visualType": "clusteredBarChart",
@@ -762,90 +762,6 @@
           ]
         },
         "howCreated": "User"
-      },
-      {
-        "name": "b29d4e72b801c3f56092",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "public dim_estados"
-              }
-            },
-            "Property": "uf"
-          }
-        },
-        "type": "Categorical"
-      },
-      {
-        "name": "b39d4e72b801c3f56093",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "_Medidas"
-              }
-            },
-            "Property": "Volume Financeiro Estimado"
-          }
-        },
-        "type": "Advanced"
-      },
-      {
-        "name": "b49d4e72b801c3f56094",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "_Medidas"
-              }
-            },
-            "Property": "% Participação Orçamento"
-          }
-        },
-        "type": "Advanced"
-      },
-      {
-        "name": "b59d4e72b801c3f56095",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "_Medidas"
-              }
-            },
-            "Property": "Volume de Processos Abertos"
-          }
-        },
-        "type": "Advanced"
-      },
-      {
-        "name": "b69d4e72b801c3f56096",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "_Medidas"
-              }
-            },
-            "Property": "Ticket Médio por Compra"
-          }
-        },
-        "type": "Advanced"
-      },
-      {
-        "name": "04abe330e76190a4e2b0",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "public dim_orgaos"
-              }
-            },
-            "Property": "nome_orgao"
-          }
-        },
-        "type": "Categorical"
       }
     ]
   }

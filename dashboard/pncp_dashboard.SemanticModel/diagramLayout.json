@@ -59,6 +59,32 @@
             "width": 234
           },
           "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 688.66840310460873,
+            "y": 319.77139549999896
+          },
+          "nodeIndex": "_Medidas",
+          "nodeLineageTag": "2a44900d-ad39-429e-8ddb-a363555a19f8",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 972.66840310460873,
+            "y": 357.77139549999896
+          },
+          "nodeIndex": "dim_calendario",
+          "nodeLineageTag": "0b24864a-1fbe-4e90-944b-85df6d1d4478",
+          "size": {
+            "height": 224,
+            "width": 234
+          },
+          "zIndex": 0
         }
       ],
       "name": "Todas as tabelas",

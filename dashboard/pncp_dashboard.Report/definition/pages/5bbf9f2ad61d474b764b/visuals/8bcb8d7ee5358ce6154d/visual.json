@@ -1,13 +1,13 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
-  "name": "01257663132b0054acd9",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.15.0/schema.json",
+  "name": "8bcb8d7ee5358ce6154d",
   "position": {
-    "x": 1695.3191489361698,
-    "y": 67.112462006079028,
-    "z": 15004,
+    "x": 1359.7264437689967,
+    "y": 62.112462006079028,
+    "z": 11003,
     "height": 74.40729483282675,
     "width": 215.92705167173253,
-    "tabOrder": 15004
+    "tabOrder": 11003
   },
   "visual": {
     "visualType": "slicer",
@@ -20,14 +20,14 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "public dim_orgaos"
+                      "Entity": "public fato_editais"
                     }
                   },
-                  "Property": "esfera"
+                  "Property": "setor_area"
                 }
               },
-              "queryRef": "public dim_orgaos.esfera",
-              "nativeQueryRef": "esfera",
+              "queryRef": "public fato_editais.setor_area",
+              "nativeQueryRef": "setor_area",
               "active": true
             }
           ]
@@ -35,26 +35,13 @@
       }
     },
     "objects": {
-      "data": [
-        {
-          "properties": {
-            "mode": {
-              "expr": {
-                "Literal": {
-                  "Value": "'Dropdown'"
-                }
-              }
-            }
-          }
-        }
-      ],
       "header": [
         {
           "properties": {
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Esfera'"
+                  "Value": "'Setor'"
                 }
               }
             },
@@ -98,6 +85,32 @@
                       "Percent": 0
                     }
                   }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "data": [
+        {
+          "properties": {
+            "mode": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Dropdown'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "general": [
+        {
+          "properties": {
+            "selfFilterEnabled": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
                 }
               }
             }
@@ -350,7 +363,7 @@
       ]
     },
     "syncGroup": {
-      "groupName": "esfera",
+      "groupName": "setor_area",
       "fieldChanges": true,
       "filterChanges": true
     },

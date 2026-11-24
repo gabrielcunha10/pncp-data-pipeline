@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.15.0/schema.json",
   "name": "222c92c7d566aa638319",
   "position": {
     "x": 1089.1590678824723,
@@ -653,107 +653,5 @@
       ]
     },
     "drillFilterOtherVisuals": true
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "bf697e478b92aa9773d3",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "public dim_estados"
-              }
-            },
-            "Property": "uf"
-          }
-        },
-        "type": "Categorical"
-      },
-      {
-        "name": "b78de05b069dd90524c8",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "public fato_editais"
-              }
-            },
-            "Property": "tipo_compra"
-          }
-        },
-        "type": "Categorical"
-      },
-      {
-        "name": "5e1d75f5071c10c76c96",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "_Medidas"
-              }
-            },
-            "Property": "% Compras Sem Disputa"
-          }
-        },
-        "type": "Advanced"
-      },
-      {
-        "name": "dcec876863001d90b5c4",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "_Medidas"
-              }
-            },
-            "Property": "% Dinheiro em Compras Diretas"
-          }
-        },
-        "type": "Advanced"
-      },
-      {
-        "name": "ee0e885c69b923dcbadc",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "_Medidas"
-              }
-            },
-            "Property": "Volume em Disputa Aberta"
-          }
-        },
-        "type": "Advanced"
-      },
-      {
-        "name": "475d0efc09b332c48eda",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "_Medidas"
-              }
-            },
-            "Property": "Volume em Compra Direta"
-          }
-        },
-        "type": "Advanced"
-      },
-      {
-        "name": "95d0eabd3c7ec2817984",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "_Medidas"
-              }
-            },
-            "Property": "Volume Financeiro Estimado"
-          }
-        },
-        "type": "Advanced"
-      }
-    ]
   }
 }

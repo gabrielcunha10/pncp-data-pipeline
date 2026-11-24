@@ -1,13 +1,13 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.15.0/schema.json",
   "name": "c8a1f3e902b47d615e40",
   "position": {
     "x": 1089.4444444444446,
     "y": 365,
-    "z": 14000,
+    "z": 10000,
     "height": 315,
     "width": 821.97399527186758,
-    "tabOrder": 14000
+    "tabOrder": 10000
   },
   "visual": {
     "visualType": "clusteredColumnChart",
@@ -664,93 +664,5 @@
       ]
     },
     "drillFilterOtherVisuals": true
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "a19d4e72b801c3f56091",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "public dim_orgaos"
-              }
-            },
-            "Property": "esfera"
-          }
-        },
-        "type": "Categorical"
-      },
-      {
-        "name": "a29d4e72b801c3f56092",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "public dim_estados"
-              }
-            },
-            "Property": "uf"
-          }
-        },
-        "type": "Categorical"
-      },
-      {
-        "name": "a39d4e72b801c3f56093",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "_Medidas"
-              }
-            },
-            "Property": "Volume Financeiro Estimado"
-          }
-        },
-        "type": "Advanced"
-      },
-      {
-        "name": "a49d4e72b801c3f56094",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "_Medidas"
-              }
-            },
-            "Property": "Volume de Processos Abertos"
-          }
-        },
-        "type": "Advanced"
-      },
-      {
-        "name": "a59d4e72b801c3f56095",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "_Medidas"
-              }
-            },
-            "Property": "% Participação Orçamento"
-          }
-        },
-        "type": "Advanced"
-      },
-      {
-        "name": "a69d4e72b801c3f56096",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "_Medidas"
-              }
-            },
-            "Property": "Ticket Médio por Compra"
-          }
-        },
-        "type": "Advanced"
-      }
-    ]
   }
 }

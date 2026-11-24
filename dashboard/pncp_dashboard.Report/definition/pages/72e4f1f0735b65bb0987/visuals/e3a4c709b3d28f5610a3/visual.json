@@ -1,13 +1,13 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.15.0/schema.json",
   "name": "e3a4c709b3d28f5610a3",
   "position": {
     "x": 1089.4444444444446,
     "y": 715,
-    "z": 15000,
+    "z": 11000,
     "height": 330,
     "width": 821.97399527186758,
-    "tabOrder": 15000
+    "tabOrder": 11000
   },
   "visual": {
     "visualType": "lineClusteredColumnComboChart",
@@ -729,93 +729,5 @@
       ]
     },
     "drillFilterOtherVisuals": true
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "e3f00000000000000001",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "public dim_municipios"
-              }
-            },
-            "Property": "faixa_pib_per_capita"
-          }
-        },
-        "type": "Categorical"
-      },
-      {
-        "name": "e3f00000000000000002",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "_Medidas"
-              }
-            },
-            "Property": "Gasto por Habitante (R$/hab)"
-          }
-        },
-        "type": "Advanced"
-      },
-      {
-        "name": "e3f00000000000000003",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "_Medidas"
-              }
-            },
-            "Property": "Taxa de Concorrência (%)"
-          }
-        },
-        "type": "Advanced"
-      },
-      {
-        "name": "e3f00000000000000004",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "_Medidas"
-              }
-            },
-            "Property": "Volume Financeiro Estimado"
-          }
-        },
-        "type": "Advanced"
-      },
-      {
-        "name": "e3f00000000000000005",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "_Medidas"
-              }
-            },
-            "Property": "Volume de Processos Abertos"
-          }
-        },
-        "type": "Advanced"
-      },
-      {
-        "name": "e3f00000000000000006",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "_Medidas"
-              }
-            },
-            "Property": "Municípios Ativos"
-          }
-        },
-        "type": "Advanced"
-      }
-    ]
   }
 }

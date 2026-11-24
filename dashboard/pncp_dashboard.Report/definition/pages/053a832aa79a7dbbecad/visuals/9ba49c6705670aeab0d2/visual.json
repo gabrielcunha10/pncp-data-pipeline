@@ -1,9 +1,9 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.15.0/schema.json",
   "name": "9ba49c6705670aeab0d2",
   "position": {
-    "x": 1204.1337386018236,
-    "y": 67.112462006079028,
+    "x": 1114.1337386018236,
+    "y": 62.112462006079028,
     "z": 10000,
     "height": 74.40729483282675,
     "width": 215.92705167173253,
@@ -406,37 +406,5 @@
       "filterChanges": true
     },
     "drillFilterOtherVisuals": true
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "c951ba7891007c98b7d6",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "public fato_editais"
-              }
-            },
-            "Property": "ano_publicacao"
-          }
-        },
-        "type": "Advanced"
-      },
-      {
-        "name": "1df145079480e6304339",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "public fato_editais"
-              }
-            },
-            "Property": "mes_nome"
-          }
-        },
-        "type": "Categorical"
-      }
-    ]
   }
 }
